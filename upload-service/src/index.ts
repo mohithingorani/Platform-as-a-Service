@@ -5,8 +5,11 @@ import generate from "./utils/randomStringGenerator";
 import path from "path";
 import getAllFiles from "./utils/getAllFiles";
 import { uploadFile } from "./aws";
-
+import {createClient} from "redis"
 const app = express();
+
+const publisher = createClient();
+publisher.connect();
 
 app.use(cors());
 app.use(express.json());
@@ -24,8 +27,8 @@ app.post("/deploy", async (req, res) => {
         await uploadFile(file.slice(__dirname.length+1),file);
     })
 
-
-
+    publisher.lPush("build-queue",id);
+    
     res
       .json({
         id,

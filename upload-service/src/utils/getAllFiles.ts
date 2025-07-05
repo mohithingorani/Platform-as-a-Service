@@ -23,7 +23,8 @@ export default function getAllFiles(folderPath:string){
         else{
             response.push(fullFilePath);
         }
-
+        
     })
+    console.log(response);
     return response;
 }   

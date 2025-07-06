@@ -11,7 +11,7 @@ const s3 = new S3({
 });
 
 async function downloadFromS3(prefix: string) {
-  console.log(`🔍 Starting download for prefix: "${prefix}"`);
+  console.log(`Starting download for prefix: "${prefix}"`);
 
   const allFiles = await s3
     .listObjectsV2({
@@ -21,7 +21,9 @@ async function downloadFromS3(prefix: string) {
     .promise();
 
   const contents = allFiles.Contents ?? [];
-  console.log(`📦 Found ${contents.length} files in bucket "paas" with prefix "${prefix}"`);
+  console.log(
+    `Found ${contents.length} files in bucket "paas" with prefix "${prefix}"`
+  );
 
   const allPromises = contents.map(({ Key }, index) => {
     if (!Key) {
@@ -30,20 +32,20 @@ async function downloadFromS3(prefix: string) {
     }
 
     return new Promise<void>((resolve, reject) => {
-      const finalOutputPath = path.join(__dirname, Key);
+      const finalOutputPath = path.join(__dirname, "../", Key);
       const outputDir = path.dirname(finalOutputPath);
 
       try {
         if (!fs.existsSync(outputDir)) {
           fs.mkdirSync(outputDir, { recursive: true });
-          console.log(`📁 Created directory: ${outputDir}`);
+          console.log(`Created directory: ${outputDir}`);
         }
       } catch (err) {
         console.error(`Failed to create directory ${outputDir}:`, err);
         return reject(err);
       }
 
-      console.log(`⬇️  Downloading: ${Key} → ${finalOutputPath}`);
+      console.log(`Downloading: ${Key} → ${finalOutputPath}`);
 
       const outputFile = fs.createWriteStream(finalOutputPath);
 
@@ -67,10 +69,46 @@ async function downloadFromS3(prefix: string) {
 
   try {
     await Promise.all(allPromises);
-    console.log("🎉 All files downloaded successfully!");
+    console.log("All files downloaded successfully!");
   } catch (err) {
-    console.error("🚨 One or more downloads failed.", err);
+    console.error("One or more downloads failed.", err);
   }
 }
+
+export function copyFinalDist(id: string) {
+  const folderPath = path.join(__dirname, "../", `output/${id}/dist`);
+  const allFiles = getAllFiles(folderPath);
+  allFiles.forEach((file) => {
+    const relativePath = file.slice(folderPath.length + 1).replace(/\\/g, "/");
+    uploadFile(`dist/${id}/${relativePath}`, file);
+  });
+}
+
+const getAllFiles = (folderPath: string) => {
+  let response: string[] = [];
+
+  const allFilesAndFolders = fs.readdirSync(folderPath);
+  allFilesAndFolders.forEach((file) => {
+    const fullFilePath = path.join(folderPath, file);
+    if (fs.statSync(fullFilePath).isDirectory()) {
+      response = response.concat(getAllFiles(fullFilePath));
+    } else {
+      response.push(fullFilePath);
+    }
+  });
+  return response;
+};
+
+const uploadFile = async (fileName: string, localFilePath: string) => {
+  const fileContent = fs.readFileSync(localFilePath);
+  const response = await s3
+    .upload({
+      Body: fileContent,
+      Bucket: "paas",
+      Key: fileName,
+    })
+    .promise();
+  console.log(response);
+};
 
 export { downloadFromS3 };

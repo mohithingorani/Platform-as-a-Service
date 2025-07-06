@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  upload-service:
+    build: ./upload-service
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
+    env_file:
+      - ./upload-service/.env
+
+  deployment-service:
+    build: ./deploy-service
+    depends_on:
+      - redis
+      - upload-service
+    env_file:
+      - ./deploy-service/.env   
+
+  request-handler-service:
+    build: ./request-handler
+    ports:
+      - "3001:3001"
+    depends_on:
+      - redis

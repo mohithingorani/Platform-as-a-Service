@@ -8,7 +8,7 @@ import { uploadFile } from "./aws";
 import { createClient } from "redis";
 const app = express();
 
-const publisher = createClient();
+const publisher = createClient({ url: "redis://redis:6379" });
 publisher.connect();
 
 app.use(cors());
@@ -49,7 +49,7 @@ app.post("/deploy", async (req, res) => {
 
 app.get("/status",async(req,res)=>{
   const id = req.query.id;
-  const response = publisher.hGet("status",id as string);
+  const response = await publisher.hGet("status",id as string);
   res.json({
     status : response
   })

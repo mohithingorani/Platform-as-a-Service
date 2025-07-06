@@ -32,7 +32,8 @@ app.post("/deploy", async (req, res) => {
     );
 
     await publisher.lPush("build-queue", id);
-
+    await publisher.hSet("status",id,"uploaded");
+    // await publisher.hget("status",id);
     res
       .json({
         id,

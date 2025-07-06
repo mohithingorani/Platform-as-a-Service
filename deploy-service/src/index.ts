@@ -9,6 +9,8 @@ const subscriber = createClient({
   },
 });
 
+const publisher = createClient();
+
 async function main() {
   await subscriber.connect();  
   while (true) {
@@ -24,6 +26,7 @@ async function main() {
     console.log("Build complete for:", id);
     
     copyFinalDist(id);
+    publisher.hSet("status",id,"deployed");
   }
 }
 

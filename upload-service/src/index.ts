@@ -46,6 +46,16 @@ app.post("/deploy", async (req, res) => {
     });
   }
 });
+
+app.get("/status",async(req,res)=>{
+  const id = req.query.id;
+  const response = publisher.hGet("status",id as string);
+  res.json({
+    status : response
+  })
+})
+
+
 app.listen(3000, () => {
   console.log("Started at port 3000");
 });

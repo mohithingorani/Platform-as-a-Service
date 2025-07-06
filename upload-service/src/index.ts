@@ -5,7 +5,7 @@ import generate from "./utils/randomStringGenerator";
 import path from "path";
 import getAllFiles from "./utils/getAllFiles";
 import { uploadFile } from "./aws";
-import {createClient} from "redis"
+import { createClient } from "redis";
 const app = express();
 
 const publisher = createClient();
@@ -23,12 +23,16 @@ app.post("/deploy", async (req, res) => {
     await simpleGit().clone(repoUrl, path.join(__dirname, `output/${id}`));
     const files = getAllFiles(path.join(__dirname, `output/${id}`));
 
-    files.forEach(async file =>{
-        await uploadFile(file.slice(__dirname.length+1),file);
-    })
+    await Promise.all(
+      files.map(async (file) => {
+        let key = path.relative(__dirname, file);
+        key = key.split(path.sep).join("/"); // Normalize path
+        await uploadFile(key, file);
+      })
+    );
 
-    publisher.lPush("build-queue",id);
-    
+    await publisher.lPush("build-queue", id);
+
     res
       .json({
         id,
@@ -36,7 +40,7 @@ app.post("/deploy", async (req, res) => {
       .status(200);
   } catch (error) {
     console.log(error);
-    res.json({
+    res.status(500).json({
       message: "Error deploying application",
     });
   }

@@ -14,7 +14,7 @@ services:
     depends_on:
       - redis
     env_file:
-      - ./upload-service/.env
+      - ./.env
 
   deployment-service:
     build: ./deploy-service
@@ -22,7 +22,7 @@ services:
       - redis
       - upload-service
     env_file:
-      - ./deploy-service/.env   
+      - ./.env
 
   request-handler-service:
     build: ./request-handler

@@ -16,7 +16,7 @@ app.get("*", async (req, res) => {
     const host = req.hostname;
 
     const id = host.split(".")[0];
-    const filePath = req.path;
+    const filePath = req.path === "/" ? "/index.html" : req.path;
 
     const contents = await s3.getObject({
         Bucket: "paas",

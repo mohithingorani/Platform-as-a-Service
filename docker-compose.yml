@@ -10,7 +10,7 @@ services:
   upload-service:
     build: ./upload-service
     ports:
-      - "3000:3000"
+      - "3011:3000"
     depends_on:
       - redis
     env_file:
@@ -27,6 +27,6 @@ services:
   request-handler-service:
     build: ./request-handler
     ports:
-      - "3001:3001"
+      - "3012:3001"
     depends_on:
       - redis

@@ -75,13 +75,15 @@ async function downloadFromS3(prefix: string) {
   }
 }
 
-export function copyFinalDist(id: string) {
+export async function copyFinalDist(id: string) {
   const folderPath = path.join(__dirname, "../", `output/${id}/dist`);
   const allFiles = getAllFiles(folderPath);
-  allFiles.forEach((file) => {
-    const relativePath = file.slice(folderPath.length + 1).replace(/\\/g, "/");
-    uploadFile(`dist/${id}/${relativePath}`, file);
-  });
+  await Promise.all(
+    allFiles.map((file) => {
+      const relativePath = file.slice(folderPath.length + 1).replace(/\\/g, "/");
+      uploadFile(`dist/${id}/${relativePath}`, file);
+    })
+  );
 }
 
 const getAllFiles = (folderPath: string) => {

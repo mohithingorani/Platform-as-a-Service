@@ -1,3 +1,6 @@
+import express from "express"
+import { S3 } from "aws-sdk";
+import * as dotenv from "dotenv";
 dotenv.config();
 
 const s3 = new S3({
@@ -7,6 +10,7 @@ const s3 = new S3({
 });
 
 const app = express();
+
 app.get("*", async (req, res) => {
   const host = req.hostname;
   const id = host.split(".")[0];
@@ -16,12 +20,10 @@ app.get("*", async (req, res) => {
   console.log("key=", key);
 
   try {
-    const contents = await s3
-      .getObject({
-        Bucket: "paas",
-        Key: key,
-      })
-      .promise();
+    const contents = await s3.getObject({
+      Bucket: "paas",
+      Key: key,
+    }).promise();
 
     const type = filePath.endsWith("html")
       ? "text/html"
@@ -31,8 +33,9 @@ app.get("*", async (req, res) => {
 
     res.set("Content-Type", type);
     res.send(contents.Body);
+
   } catch (err: any) {
-    if (err.code === "NoSuchKey") {
+    if (err.code === 'NoSuchKey') {
       res.status(404).send("File not found");
     } else {
       console.error(err);

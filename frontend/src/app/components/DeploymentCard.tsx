@@ -12,7 +12,7 @@ export default function DeployedCard({ URL }: { URL: string }) {
   }
 
   return (
-    <div className="max-w-md w-full mx-auto p-6 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-2xl shadow-md transition-colors duration-300">
+    <div className=" w-full mx-auto p-6 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-2xl shadow-md transition-colors duration-300">
       <h5 className="mb-2 text-xl font-semibold text-gray-900 dark:text-gray-100">
         Deployment Status
       </h5>

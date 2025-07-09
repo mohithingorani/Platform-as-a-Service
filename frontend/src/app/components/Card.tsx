@@ -64,8 +64,8 @@ export default function Card() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="max-w-md w-full mx-auto p-6 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-2xl shadow-md transition-colors duration-300">
+    <div className="flex max-w-md flex-col gap-4">
+      <div className=" w-full mx-auto p-6 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-2xl shadow-md transition-colors duration-300">
         <h5 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-gray-100">
           Deploy your GitHub Repository
         </h5>

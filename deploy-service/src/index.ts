@@ -1,6 +1,6 @@
 import { createClient } from "redis";
 import { copyFinalDist, downloadFromS3 } from "./utils/aws";
-import { buildProject } from "./utils/buildProject";
+import { buildProject, buildProject2 } from "./utils/buildProject";
 
 const subscriber = createClient({ url: "redis://redis:6379" });
 
@@ -18,7 +18,7 @@ async function main() {
     await downloadFromS3(`output/${id}`);  
     console.log("Downloaded");
     
-    await buildProject(id);
+    await buildProject2(id);
     console.log("Build complete for:", id);
     
     await copyFinalDist(id);

@@ -1,5 +1,5 @@
 import { exec, spawn } from "child_process";
-import path from "path";
+import path, { resolve } from "path";
 
 export function buildProject(id: string) {
     return new Promise((resolve) => {
@@ -18,4 +18,35 @@ export function buildProject(id: string) {
         });
 
     })
+}
+
+
+export function buildProject2(id:string){
+    const dir = path.join(__dirname,`../`,`output/${id}`);
+    return new Promise((resolve)=>{
+        const install = spawn("npm",["install"],{cwd:dir});
+        install.stdout.on("data",(data)=>{
+            console.log("[INSTALL] ",data.toString());
+        });
+        install.stderr.on("data",(data)=>{
+            console.log("[INSTALL] ",data.toString());
+        });
+
+        install.on("close",(code)=>{
+            console.log(`[INSTALL] exited with code ${code}`);
+
+            const build = spawn("npm",["run","build"],{cwd:dir});
+            build.stdout.on("data",(data)=>{
+                console.log("[BUILD] " + data.toString());
+            })
+            build.stderr.on("data",(data)=>{
+                console.log("[BUILD]" + data.toString());
+            })
+
+            build.on("close",(code)=>{
+                console.log("[BUILD] exited with code " + code);
+                resolve("");
+            });
+        });
+    });
 }

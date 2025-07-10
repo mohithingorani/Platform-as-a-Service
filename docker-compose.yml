@@ -36,7 +36,7 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "3013:3000"
+      - "3014:3000"
     depends_on:
       - upload-service
       - deployment-service

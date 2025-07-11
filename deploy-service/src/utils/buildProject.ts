@@ -22,7 +22,7 @@ export function buildProject(id: string) {
 }
 
 async function publishToRedis(id : string,log:string){
-    await publisher.publish(`logs:${id}`,log);
+    await publisher.publish(`logs:12`,log);
 }
 
 
@@ -38,14 +38,16 @@ export function buildProject2(id:string){
         install.stderr.on("data",(data)=>{
             const log = "[INSTALL] "+data.toString();
             console.log(log);
-            publisher.publish(`logs:${id}`,log);
+                        publishToRedis(id,log);
+
 
         });
 
         install.on("close",(code)=>{
             const log = `[INSTALL] exited with code ${code}`;
             console.log(log);
-            publisher.publish(`logs:${id}`,log);
+                       publishToRedis(id,log);
+
             const build = spawn("npm",["run","build"],{cwd:dir});
             build.stdout.on("data",(data)=>{
                 const log = "[BUILD] " + data.toString();

@@ -54,4 +54,4 @@ services:
       - deployment-service
       - redis
     env_file:
-      - ./ws-server/.env
+      - ./.env

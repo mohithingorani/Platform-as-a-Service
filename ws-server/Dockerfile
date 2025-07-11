@@ -9,7 +9,7 @@ COPY tsconfig.json ./
 
 COPY . .
 
-RUN npx tsc -b
+RUN npm run build
 
 
 EXPOSE 8080

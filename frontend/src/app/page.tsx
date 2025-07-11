@@ -1,5 +1,6 @@
 "use client";
 import Card from "./components/Card";
+import LogsCard from "./components/LogsCard";
 import { ThemeSwitcher } from "./components/ThemeSwitcher";
 
 export default function Home() {
@@ -11,6 +12,7 @@ export default function Home() {
       </div>
 
       <Card />
+      <LogsCard id={"12"}/>
     </main>
   );
 }

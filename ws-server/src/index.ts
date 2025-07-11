@@ -22,10 +22,12 @@ wss.on("connection", function connection(ws) {
     const id = message.id;
 
     await subscriber.subscribe(`logs:${id}`, (logLine) => {
-      console.log(logLine);
-      ws.send(logLine);
+      const message = {
+        logs : logLine
+      }
+      ws.send(JSON.stringify(message));
     });
   });
 
-  ws.send("something");
+//   ws.send("something");
 });

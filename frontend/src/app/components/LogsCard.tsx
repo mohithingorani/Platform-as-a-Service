@@ -9,9 +9,9 @@ export default function LogsCard({ id }: { id: string }) {
     const ws = new WebSocket(WS_URL);
     ws.onopen = () => {
       console.log("connected");
-      if (ws) {
-        ws.send(JSON.stringify({ id }));
-      }
+      // if (ws) {
+      ws.send(JSON.stringify({ id }));
+      // }
     };
     ws.onclose = () => {
       console.log("disconnected");

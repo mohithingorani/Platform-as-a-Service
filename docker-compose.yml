@@ -43,7 +43,7 @@ services:
       - request-handler-service
       - websocket-backend
     env_file:
-      - ./.env
+      - ./frontend/.env
 
   websocket-backend:
     build: ./ws-server
@@ -54,4 +54,4 @@ services:
       - deployment-service
       - redis
     env_file:
-      - .env
+      - ./ws-server/.env

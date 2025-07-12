@@ -22,10 +22,6 @@ export default function LogsCard({ id }: { id: string }) {
       setMessages((messages) => [...messages, message]);
       console.log(message);
     };
-
-    return () => {
-      ws.close();
-    };
   }, []);
 
   return (

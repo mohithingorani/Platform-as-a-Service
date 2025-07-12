@@ -41,5 +41,17 @@ services:
       - upload-service
       - deployment-service
       - request-handler-service
+      - websocket-backend
+    env_file:
+      - ./frontend/.env
+
+  websocket-backend:
+    build: ./ws-server
+    ports:
+      - "8081:8080"
+    depends_on:
+      - upload-service
+      - deployment-service
+      - redis
     env_file:
       - ./.env

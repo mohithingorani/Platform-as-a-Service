@@ -1,10 +1,12 @@
 import { createClient } from "redis";
 import { copyFinalDist, downloadFromS3 } from "./utils/aws";
-import { buildProject } from "./utils/buildProject";
+import { buildProject, buildProject2 } from "./utils/buildProject";
+import dotenv from "dotenv"
+dotenv.config();
 
-const subscriber = createClient({ url: "redis://redis:6379" });
+const subscriber = createClient({ url: process.env.REDIS_URL as string });
 
-const publisher = createClient({ url: "redis://redis:6379" });
+export const publisher = createClient({ url: process.env.REDIS_URL as string });
 
 async function main() {
   await subscriber.connect(); 
@@ -18,7 +20,7 @@ async function main() {
     await downloadFromS3(`output/${id}`);  
     console.log("Downloaded");
     
-    await buildProject(id);
+    await buildProject2(id);
     console.log("Build complete for:", id);
     
     await copyFinalDist(id);

@@ -4,6 +4,7 @@ import { useState } from "react";
 import axios from "axios";
 import { z } from "zod";
 import DeployedCard from "./DeploymentCard";
+import LogsCard from "./LogsCard";
 
 const githubUrlSchema = z
   .string()
@@ -18,7 +19,7 @@ export default function Card() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [deployedUrl, setDeployedUrl] = useState<string>("");
-
+  const [id, setId] = useState<string>();
   async function deploy() {
     // validate
     const result = githubUrlSchema.safeParse(url);
@@ -38,6 +39,7 @@ export default function Card() {
       );
 
       const deploymentId = deployRepo.data.id;
+      setId(deploymentId);
       console.log("Created deployment id:", deploymentId);
 
       const intervalId = setInterval(async () => {
@@ -101,6 +103,8 @@ export default function Card() {
         </button>
       </div>
       <div>{deployedUrl && <DeployedCard URL={deployedUrl} />}</div>
+      {id &&<LogsCard id={id}/>}
+
     </div>
   );
 }

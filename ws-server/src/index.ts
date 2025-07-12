@@ -25,7 +25,8 @@ wss.on("connection", async function connection(ws) {
 
     console.log(`Subscribing to ${channel}`);
 
-    await subscriber.subscribe(channel, (logLine) => {
+    await subscriber.subscribe("logs:test123", (logLine) => {
+      console.log("Got PUBSUB:",logLine);
       ws.send(JSON.stringify({ logs: logLine }));
     });
   });

@@ -1,6 +1,6 @@
 import { WebSocketServer } from "ws";
 import { createClient } from "redis";
-import dotenv from "dotenv"
+import dotenv from "dotenv";
 dotenv.config();
 
 const wss = new WebSocketServer({
@@ -13,8 +13,13 @@ wss.on("connection", async function connection(ws) {
   const subscriber = createClient({
     url: process.env.REDIS_URL,
   });
+  const publisher = createClient({
+    url: process.env.REDIS_URL,
+  });
   await subscriber.connect();
+  await publisher.connect();
 
+  publisher.publish("logs:test:123", "testing from ws-server");
   ws.on("error", (error) => {
     console.log(error);
   });
@@ -25,7 +30,8 @@ wss.on("connection", async function connection(ws) {
 
     console.log(`Subscribing to ${channel}`);
 
-    await subscriber.subscribe(channel, (logLine) => {
+    await subscriber.subscribe("logs:test123", (logLine) => {
+      console.log("Got PUBSUB:", logLine);
       ws.send(JSON.stringify({ logs: logLine }));
     });
   });

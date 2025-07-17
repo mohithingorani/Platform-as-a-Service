@@ -4,7 +4,7 @@
 
 # ⚙️ PaaS Deployment Platform
 
-A highly scalable **Platform-as-a-Service (PaaS)** solution designed to simplify the deployment of modern frontend applications. By merely providing a GitHub repository URL, the platform will clone, build, and host your application on a custom subdomain.
+A highly scalable **Platform-as-a-Service (PaaS)** solution designed to simplify the deployment of modern frontend applications. By merely providing a GitHub repository URL, the platform will clone, build, and host your application on a subdomain.
 
 ---
 

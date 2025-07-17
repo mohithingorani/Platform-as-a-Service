@@ -45,6 +45,7 @@ This platform enables developers to deploy frontend projects (e.g., React, Vue, 
 | **request-handler-service** | Routes HTTP requests to appropriate assets in S3 based on the requested subdomain (e.g., `project123.deploy.mohithingorani.tech`).                                 |
 | **Nginx** (host)            | Terminates TLS, performs subdomain-based routing, and proxies traffic to the request-handler-service.                                                              |
 | **Redis**                   | Acts as the message broker for build jobs and stores deployment statuses.                                                                                          |
+| **Frontend**                | NextJs Frontend to make direct API calls and tell deployment status with deployed URL.                                                                             |
 
 ---
 

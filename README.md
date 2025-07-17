@@ -236,6 +236,6 @@ Ensure your DNS provider routes the wildcard domain (`*.deploy.${DOMAIN_NAME}`) 
 
 ## 👨‍💻 Author
 
-**Mohit Hingorani** – [mohithingorani.tech](https://mohit-hingorani.tech)
+**Mohit Hingorani** – [mohit-hingorani.tech](https://mohit-hingorani.tech)
 
 Feel free to contribute or open issues for any feature requests or bug reports.

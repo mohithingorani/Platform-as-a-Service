@@ -93,6 +93,7 @@ This command will launch:
 * 🌐 **request-handler-service** on port `3012`
 * 🔧 **deployment-service** in the background
 * 🗄️ **Redis** on port `6379`
+* 💻 **frontend** on port `3014`
 
 ---
 
@@ -225,6 +226,7 @@ Ensure your DNS provider routes the wildcard domain (`*.deploy.${DOMAIN_NAME}`) 
 ├── docker-compose.yml
 ├── .env
 ├── upload-service/
+├── frontend/
 ├── deployment-service/
 ├── request-handler/
 └── nginx/             # Host machine configuration

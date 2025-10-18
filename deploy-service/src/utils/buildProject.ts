@@ -66,3 +66,25 @@ export function buildProject2(id: string) {
     });
   });
 }
+
+export function buildInDocker(id:string){
+  const dir = path.join(__dirname,"../",`output/${id}`);
+
+  return new Promise((resolve,reject)=>{
+    const docker = spawn("docker",[
+      "run",
+      "--rm",
+     "-v", `${dir}:/app`,
+      "-w","/app",
+      "node:22",
+      "bash","-c","npm install && npm run build"
+    ]);
+    docker.stdout.on("data",(data)=>console.log(data.toString()))
+    docker.stderr.on("data",(data)=>console.error(data.toString()));
+
+    docker.on("close",(code)=>{
+      console.log(`Docker exited with code ${code}`);
+      resolve("");
+    });
+  });
+}

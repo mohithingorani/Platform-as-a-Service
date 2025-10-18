@@ -1,6 +1,6 @@
 import { createClient } from "redis";
 import { copyFinalDist, downloadFromS3 } from "./utils/aws";
-import { buildProject2 } from "./utils/buildProject";
+import { buildInDocker} from "./utils/buildProject";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -13,14 +13,13 @@ async function main() {
   await publisher.connect();
   while (true) {
     const response = await subscriber.brPop("build-queue", 0);
-    console.log(response);
-
-    //@ts-ignore
+    if(!response) return;
     const id = response.element;
     await downloadFromS3(`output/${id}`);
     console.log("Downloaded");
 
-    await buildProject2(id);
+    await buildInDocker(id);
+    // await buildProject2(id);
     console.log("Build complete for:", id);
 
     await copyFinalDist(id);

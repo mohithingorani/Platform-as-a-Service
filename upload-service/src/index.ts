@@ -8,7 +8,7 @@ import { uploadFile } from "./aws";
 import { createClient } from "redis";
 const app = express();
 
-const publisher = createClient({ url: "redis://redis:6379" });
+const publisher = createClient({ url: `${process.env.REDIS_URL}` as string });
 publisher.connect();
 
 app.use(cors());
@@ -18,7 +18,7 @@ app.post("/deploy", async (req, res) => {
   try {
     const repoUrl = req.body.repoUrl;
     const id = generate(5);
-
+    console.log("__dirname=", __dirname);
     // This is will store in the dist folder. we are using absolute paths
     await simpleGit().clone(repoUrl, path.join(__dirname, `output/${id}`));
     const files = getAllFiles(path.join(__dirname, `output/${id}`));
@@ -32,7 +32,7 @@ app.post("/deploy", async (req, res) => {
     );
 
     await publisher.lPush("build-queue", id);
-    await publisher.hSet("status",id,"uploaded");
+    await publisher.hSet("status", id, "uploaded");
     // await publisher.hget("status",id);
     res
       .json({
@@ -47,16 +47,26 @@ app.post("/deploy", async (req, res) => {
   }
 });
 
-app.get("/status",async(req,res)=>{
-  const id = req.query.id;
-  const response = await publisher.hGet("status",id as string);
-  res.json({
-    status : response
-  })
-})
+app.get("/status", async (req, res) => {
+  try {
+    const id = req.query.id as string;
+    const response = await publisher.hGet("status", id);
+    res
+      .json({
+        status: response,
+      })
+      .status(200);
+  } catch (err) {
+    console.log(err);
+    res.json({
+      error: err,
+    }).status(500);
+  }
+});
 
 
+const PORT =process.env.UPLOAD_PORT || 3000
 
-app.listen(3000, () => {
-  console.log("Started at port 3000");
+app.listen(PORT, () => {
+  console.log(`Upload Service started at port ${PORT}`);
 });

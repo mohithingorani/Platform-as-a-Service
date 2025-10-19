@@ -4,6 +4,7 @@ import { buildInDocker} from "./utils/buildProject";
 import dotenv from "dotenv";
 dotenv.config();
 
+
 const subscriber = createClient({ url: process.env.REDIS_URL as string });
 
 export const publisher = createClient({ url: process.env.REDIS_URL as string });

@@ -2,8 +2,8 @@ node_modules
 npm-debug.log
 Dockerfile
 .dockerignore
-dist
 build
 .next
 coverage
 *.log
+.env

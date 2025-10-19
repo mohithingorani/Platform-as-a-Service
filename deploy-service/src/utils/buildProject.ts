@@ -1,6 +1,7 @@
 import { exec, spawn } from "child_process";
 import path, { resolve } from "path";
 import { publisher } from "..";
+import fs from "fs";
 
 // export function buildProject(id: string) {
 //     return new Promise((resolve) => {
@@ -66,25 +67,32 @@ export function buildProject2(id: string) {
     });
   });
 }
+export function buildInDocker(id:string) {
+  const containerPath = path.join(__dirname, "../", `output/${id}`);
+  const hostBase = process.env.HOST_SHARED_OUTPUT; // e.g., /Users/you/project/shared-output
+  const hostPath = path.join(hostBase!, id);
 
-export function buildInDocker(id:string){
-  const dir = path.join(__dirname,"../",`output/${id}`);
+  console.log("Container Path:", containerPath);
+  console.log("Host Directory:", hostPath);
+  console.log("Files:", fs.readdirSync(containerPath));
 
-  return new Promise((resolve,reject)=>{
-    const docker = spawn("docker",[
+  return new Promise((resolve, reject) => {
+    const docker = spawn("docker", [
       "run",
       "--rm",
-     "-v", `${dir}:/app`,
-      "-w","/app",
+      "-v", `${hostPath}:/app`,
+      "-w", "/app",
       "node:22",
-      "bash","-c","npm install && npm run build"
+      "bash", "-c", "npm install && npm run build",
     ]);
-    docker.stdout.on("data",(data)=>console.log(data.toString()))
-    docker.stderr.on("data",(data)=>console.error(data.toString()));
 
-    docker.on("close",(code)=>{
+    docker.stdout.on("data", data => console.log(data.toString()));
+    docker.stderr.on("data", data => console.error(data.toString()));
+
+    docker.on("close", code => {
       console.log(`Docker exited with code ${code}`);
       resolve("");
     });
   });
 }
+

@@ -11,7 +11,7 @@ const poppins_init = Poppins({
   variable: "--font-poppins",
 });
 export const metadata: Metadata = {
-  title: "Platform As A Service",
+  title: "Voltex",
   description: "Deploy Your React Applications",
 };
 

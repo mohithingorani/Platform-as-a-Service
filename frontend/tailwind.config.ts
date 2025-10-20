@@ -16,8 +16,24 @@ const config: Config = {
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+        'radial-gradient-dark': 'radial-gradient(ellipse at center, #1a1a1a 0%, #000000 75%)',
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+      },
+      animation: {
+        'fade-in-up': 'fadeInUp 1.5s ease-out forwards',
+      },
+      keyframes: {
+        fadeInUp: {
+          '0%': {
+            opacity: '0',
+            transform: 'translateY(40px)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0)',
+          },
+        },
       },
     },
   },

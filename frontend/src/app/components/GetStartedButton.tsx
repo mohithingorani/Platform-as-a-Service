@@ -9,7 +9,7 @@ export default function GetStartedButton() {
       onClick={() => {
         router.push("/signup");
       }}
-      className=" px-4 hover:bg-white hover:text-black transition duration-300  outline-none py-2  bg-white bg-opacity-10 border rounded-xl border-white border-opacity-30"
+      className=" px-2 md:px-4 text-xs md:text-sm w-fit hover:bg-white hover:text-black transition duration-300  outline-none py-2  bg-white bg-opacity-10 border rounded-xl border-white border-opacity-30"
     >
       Get Started
     </button>

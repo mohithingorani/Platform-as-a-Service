@@ -7,6 +7,7 @@ export default function LogsCard({ id }: { id: string }) {
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const WS_URL = "ws://localhost:8081/";
+  const divRef = useRef<any>(null);
 
   useEffect(() => {
     if (!WS_URL || !id) return;
@@ -26,7 +27,9 @@ export default function LogsCard({ id }: { id: string }) {
       try {
         const data = JSON.parse(event.data);
         if (data.logs) {
+          
           setMessages((prev) => [...prev, data.logs]);
+          scrollToBottom();
         }
       } catch (err) {
         console.error("Bad message", err);
@@ -37,7 +40,7 @@ export default function LogsCard({ id }: { id: string }) {
       console.log("WebSocket closed");
       setIsConnected(false);
     };
-    
+
     ws.onerror = (err) => {
       console.error("WebSocket error", err);
       setIsConnected(false);
@@ -53,15 +56,40 @@ export default function LogsCard({ id }: { id: string }) {
     };
   }, [id]);
 
+  const scrollToBottom = () => {
+    if (divRef.current) {
+      divRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+  };
+
+
+
+  
+
   return (
-    <div className="text-white bg-green-200 p-4 rounded-lg">
-      <h3 className="text-black font-bold">Logs for {id}</h3>
-      <div className="text-sm text-gray-600">
+    <div>
+      <div>
+        <h3 className=" font-bold">id:{id}</h3>
+        {/* <div className="text-sm ">
         Status: {isConnected ? "Connected" : "Disconnected"}
+      </div> */}
       </div>
-      <pre className="text-black whitespace-pre-wrap">
-        {messages.join("\n")}
-      </pre>
+      <div
+        ref={divRef}
+        className=" bg-black  w-[700px] h-[500px] min-h-[500px] overflow-y-scroll text-xs font-commitmono border border-gray-400/40  text-green-600 p-4 rounded-lg"
+      >
+        <pre className=" whitespace-pre-wrap  font-commitmono">
+          {messages.map((message) => (
+            <>
+              {message.startsWith("[BUILD]") ? (
+                <div className="text-green-400">{message}</div>
+              ) : (
+                <div className="text-red-500">{message}</div>
+              )}
+            </>
+          ))}
+        </pre>
+      </div>
     </div>
   );
 }

@@ -22,6 +22,7 @@ wss.on("connection", async function connection(ws) {
   });
 
   ws.on("message", async function message(data) {
+    console.log("Got a message");
     try {
       const { message } = JSON.parse(data.toString());
       const id = message.id;

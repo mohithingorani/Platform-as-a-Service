@@ -23,54 +23,54 @@ import fs from "fs";
 // }
 
 async function publishToRedis(id: string, log: string) {
-  console.log("Pushed to redis for id 123", id);
-  await publisher.publish(`logs:test123`, log);
+  console.log("Pushed to redis for id", id);
+  await publisher.publish(`logs:${id}`, log);
 }
 
-export function buildProject2(id: string) {
-  const dir = path.join(__dirname, `../`, `output/${id}`);
-  return new Promise((resolve) => {
-    const install = spawn("npm", ["install"], { cwd: dir });
-    install.stdout.on("data", (data) => {
-      const log = "[INSTALL] " + data.toString();
-      console.log(log);
-      publishToRedis(id, log);
-    });
-    install.stderr.on("data", (data) => {
-      const log = "[INSTALL] " + data.toString();
-      console.log(log);
-      publishToRedis(id, log);
-    });
+// export function buildProject2(id: string) {
+//   const dir = path.join(__dirname, `../`, `output/${id}`);
+//   return new Promise((resolve) => {
+//     const install = spawn("npm", ["install"], { cwd: dir });
+//     install.stdout.on("data", (data) => {
+//       const log = "[INSTALL] " + data.toString();
+//       console.log(log);
+//       publishToRedis(id, log);
+//     });
+//     install.stderr.on("data", (data) => {
+//       const log = "[INSTALL] " + data.toString();
+//       console.log(log);
+//       publishToRedis(id, log);
+//     });
 
-    install.on("close", (code) => {
-      const log = `[INSTALL] exited with code ${code}`;
-      console.log(log);
-      publishToRedis(id, log);
+//     install.on("close", (code) => {
+//       const log = `[INSTALL] exited with code ${code}`;
+//       console.log(log);
+//       publishToRedis(id, log);
 
-      const build = spawn("npm", ["run", "build"], { cwd: dir });
-      build.stdout.on("data", (data) => {
-        const log = "[BUILD] " + data.toString();
-        publishToRedis(id, log);
-      });
-      build.stderr.on("data", (data) => {
-        const log = "[BUILD] " + data.toString();
-        console.log(log);
-        publishToRedis(id, log);
-      });
+//       const build = spawn("npm", ["run", "build"], { cwd: dir });
+//       build.stdout.on("data", (data) => {
+//         const log = "[BUILD] " + data.toString();
+//         publishToRedis(id, log);
+//       });
+//       build.stderr.on("data", (data) => {
+//         const log = "[BUILD] " + data.toString();
+//         console.log(log);
+//         publishToRedis(id, log);
+//       });
 
-      build.on("close", (code) => {
-        const log = "[BUILD] exited with code " + code;
-        console.log(log);
-        publishToRedis(id, log);
-        resolve("");
-      });
-    });
-  });
-}
-export function buildInDocker(id:string) {
+//       build.on("close", (code) => {
+//         const log = "[BUILD] exited with code " + code;
+//         console.log(log);
+//         publishToRedis(id, log);
+//         resolve("");
+//       });
+//     });
+//   });
+// }
+export function buildInDocker(id: string) {
   const containerPath = path.join(__dirname, "../", `output/${id}`);
   const hostBase = process.env.HOST_SHARED_OUTPUT; // e.g., /Users/you/project/shared-output
-  const hostPath = path.join(hostBase!, id);
+  const hostPath = hostBase ?path.join(hostBase, id):containerPath;
 
   console.log("Container Path:", containerPath);
   console.log("Host Directory:", hostPath);
@@ -80,19 +80,30 @@ export function buildInDocker(id:string) {
     const docker = spawn("docker", [
       "run",
       "--rm",
-      "-v", `${hostPath}:/app`,
-      "-w", "/app",
+      "-v",
+      `${hostPath}:/app`,
+      "-w",
+      "/app",
       "node:22",
-      "bash", "-c", "npm install && npm run build",
+      "bash",
+      "-c",
+      "npm install && npm run build",
     ]);
 
-    docker.stdout.on("data", data => console.log(data.toString()));
-    docker.stderr.on("data", data => console.error(data.toString()));
+    docker.stdout.on("data", (data) => {
+      const log = `[BUILD] + ${data.toString()}`
+     publishToRedis(id,log);
+      console.log(data.toString());
+    });
+    docker.stderr.on("data", (data) => {
+      const log = `[ERROR] + ${data.toString()}`
+      publishToRedis(id,log);
+      console.error(data.toString());
+    });
 
-    docker.on("close", code => {
+    docker.on("close", (code) => {
       console.log(`Docker exited with code ${code}`);
       resolve("");
     });
   });
 }
-

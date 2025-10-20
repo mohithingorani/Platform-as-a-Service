@@ -103,7 +103,10 @@ export default function Card() {
         </button>
       </div>
       <div>{deployedUrl && <DeployedCard URL={deployedUrl} />}</div>
-      {id &&<LogsCard id={"test123"}/>}
+      
+      <div>
+        {id &&<LogsCard id={id}/>}
+        </div>
 
     </div>
   );

@@ -4,7 +4,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const wss = new WebSocketServer({
-  port: 8080,
+  port: 8081,
+  host: "0.0.0.0",
 });
 
 wss.on("connection", async function connection(ws) {
@@ -13,33 +14,36 @@ wss.on("connection", async function connection(ws) {
   const subscriber = createClient({
     url: process.env.REDIS_URL,
   });
-  const publisher = createClient({
-    url: process.env.REDIS_URL,
-  });
+  
   await subscriber.connect();
-  await publisher.connect();
 
-  publisher.publish("logs:test:123", "testing from ws-server");
   ws.on("error", (error) => {
-    console.log(error);
+    console.log("WebSocket error:", error);
   });
 
   ws.on("message", async function message(data) {
-    const { id } = JSON.parse(data.toString());
-    const channel = `logs:${id}`;
+    try {
+      const { message } = JSON.parse(data.toString());
+      const id = message.id;
+      const channel = `logs:${id}`;
 
-    console.log(`Subscribing to ${channel}`);
-
-    await subscriber.subscribe("logs:test123", (logLine) => {
-      console.log("Got PUBSUB:", logLine);
-      ws.send(JSON.stringify({ logs: logLine }));
-    });
+      console.log("Subscribing to channel:", channel);
+      
+      await subscriber.subscribe(channel, (logLine) => {
+        console.log("Got PUBSUB:", logLine);
+        // Check if WebSocket is still open before sending
+        if (ws.readyState === ws.OPEN) {
+          ws.send(JSON.stringify({ logs: logLine }));
+        }
+      });
+    } catch (err) {
+      console.error("Error processing message:", err);
+    }
   });
 
   ws.on("close", async () => {
     console.log("Client disconnected");
+    await subscriber.unsubscribe();
     await subscriber.quit();
   });
-
-  // ws.send("connected");
 });

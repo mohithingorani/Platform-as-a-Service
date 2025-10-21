@@ -1,3 +1,4 @@
+import axios from "axios";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -44,21 +45,31 @@ export async function GET(request: Request) {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   const user = await userRes.json();
+
+  await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
+    username: user.email,
+    name: user.name,
+    profilePicture: user.picture,
+  });
+
   // 3️⃣ Create session cookie
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
   const res = NextResponse.redirect(`${baseUrl}/`);
 
-  res.cookies.set("session", JSON.stringify({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    picture: user.picture,
-  }), {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-  });
+  res.cookies.set(
+    "session",
+    JSON.stringify({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      picture: user.picture,
+    }),
+    {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+    }
+  );
   return res;
-
-
 }

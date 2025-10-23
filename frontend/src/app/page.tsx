@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import GetStartedButton from "./components/GetStartedButton";
 import NavBar from "./components/NavBar";
 import Terminal from "./components/Terminal";
@@ -8,14 +8,15 @@ import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
+  const [isauthenticated, setAuthenticated]=useState(false);
   useEffect(() => {
     async function isAuthenticated() {
       const res = await axios.get("/api/auth/authenticated");
       if (res.data.authenticated) {
-        router.push("/home");
+        setAuthenticated(true);
       }
     }
-    isAuthenticated();
+    isAuthenticated();   
   }, []);
 
   return (
@@ -36,7 +37,7 @@ export default function Home() {
             softwares at scale.
           </div>
           <div className="mt-6 hidden md:inline-block ml-4 md:ml-0 animate-fade-in-up">
-            <GetStartedButton />
+            <GetStartedButton To="/signup" />
           </div>
         </div>
       </div>

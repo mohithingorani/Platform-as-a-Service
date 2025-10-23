@@ -30,20 +30,27 @@ export async function GET(request: Request) {
   });
 
   const user = await userRes.json();
-  await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
-    name: user.name,
-    username: user.html_url,
-    profilePicture: user.avatar_url,
-  });
+  try {
+    await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
+      name: user.name,
+      username: user.login,
+      profilePicture: user.avatar_url,
+    });
+  } catch (err) {
+    console.log(err);
+  }
+  
   console.log(user);
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
 
   // CREATE SESSION COOKIE
-  const res = NextResponse.redirect(
-    `${baseUrl}`
-  );
-  res.cookies.set("session", JSON.stringify({ user }), {
+  const res = NextResponse.redirect(`${baseUrl}/home`);
+  res.cookies.set("session", JSON.stringify({ id:user.id,
+    name:user.name,
+    username:user.login,
+    picture:user.avatar_url
+  }), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     path: "/",

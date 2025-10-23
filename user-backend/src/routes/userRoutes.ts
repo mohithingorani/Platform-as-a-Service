@@ -1,11 +1,10 @@
 import express from "express";
-import { PublicUser, User } from "../types/userType";
 import { client } from "..";
 const router = express.Router();
 
 router.get("/", async (req, res) => {
-  const username = req.query.usrname as string;
-
+  const username = req.query.username as string;
+  console.log("Username: ",username);
   try {
     const user = await client.user.findFirst({
       where: {

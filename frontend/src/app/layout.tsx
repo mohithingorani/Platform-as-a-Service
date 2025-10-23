@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Poppins } from "next/font/google";
+import RecoilContextProvider from "@/lib/recoilContextProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 const poppins_init = Poppins({
@@ -24,7 +25,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={poppins_init.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
+          <RecoilContextProvider>{children}</RecoilContextProvider>
         </ThemeProvider>
       </body>
     </html>

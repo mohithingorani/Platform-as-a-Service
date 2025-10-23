@@ -23,7 +23,7 @@ export async function GET(request: Request) {
     body: new URLSearchParams({
       client_id: process.env.GOOGLE_CLIENT_ID!,
       client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-      redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/google/callback`,
+redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/google/callback`,
       grant_type: "authorization_code",
       code,
     }),
@@ -45,24 +45,29 @@ export async function GET(request: Request) {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   const user = await userRes.json();
+try{
 
-  await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
+  await axios.post(`http://localhost:3001/home/users`, {
     username: user.email,
     name: user.name,
     profilePicture: user.picture,
   });
+}catch(err){
+  console.log(err);
+  
+}
 
   // 3️⃣ Create session cookie
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
-  const res = NextResponse.redirect(`${baseUrl}/`);
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+
+  const res = NextResponse.redirect(`${baseUrl}/home`);
 
   res.cookies.set(
     "session",
     JSON.stringify({
       id: user.id,
       name: user.name,
-      email: user.email,
+      username: user.email,
       picture: user.picture,
     }),
     {
@@ -71,5 +76,6 @@ export async function GET(request: Request) {
       path: "/",
     }
   );
+
   return res;
 }

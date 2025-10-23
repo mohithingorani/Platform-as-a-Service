@@ -6,7 +6,9 @@ app.use(express.json());
 import userRoutes from "./routes/userRoutes"
 import { PrismaClient } from "@prisma/client";
 export const client =new  PrismaClient();
+import cors from "cors"
 
+app.use(cors());
 
 app.use("/users",userRoutes);
 

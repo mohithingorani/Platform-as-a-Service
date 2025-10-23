@@ -1,8 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { z } from "zod";
 import LogsCard from "../components/LogsCard";
+import NavBar from "../components/NavBar";
+import HomeNavBar from "../components/HomeNavBar";
 
 const githubUrlSchema = z
   .string()
@@ -11,6 +13,13 @@ const githubUrlSchema = z
     /^https:\/\/github\.com\/[^\/]+\/[^\/]+$/,
     "Must be a valid GitHub repository URL"
   );
+
+  interface UserSessionData{
+    id:string,
+    name:string,
+    username:string,
+    picture:string
+  }
 export default function Home() {
   const [url, setUrl] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
@@ -18,6 +27,26 @@ export default function Home() {
   const [deployedUrl, setDeployedUrl] = useState<string>("");
   const [id, setId] = useState<string>();
 
+  
+  const [userData, setUserData] = useState<UserSessionData | null>(null);
+  const [userInformation,setUserInformation] = useState<any>(null);
+  useEffect(() => {
+    async function getData() {
+      const userdata = await axios.get("/api/me");
+      setUserData(userdata.data);
+    }
+    getData();
+  }, []);
+
+    async function setUserInfo() {
+      const userInfo = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users?username=${userData?.username}`
+      );
+      setUserInformation(userInfo.data)
+      console.log(userInfo);
+    }
+
+    
   async function deploy() {
     // validate
     const result = githubUrlSchema.safeParse(url);
@@ -64,13 +93,8 @@ export default function Home() {
   }
   return (
     <main className="flex justify-center items-center">
-      {/* <div className="absolute top-4 right-4"> */}
-      {/* <ThemeSwitcher /> */}
-
-      {/* </div> */}
-
-      {/* <Card /> */}
-      <div className="flex flex-col  justify-center items-center mt-12 px-6 md:px-0">
+      {userData && <HomeNavBar username={userData.username} picture={userData.picture } />}
+      <div className="flex flex-col  justify-center items-center mt-24 px-6 md:px-0">
         <div className="max-w-[150px] md:max-w-full">
           <video
             autoPlay

@@ -3,8 +3,8 @@ import Image from "next/image";
 import HomeButton from "../components/HomeRouterButton";
 import { useRouter } from "next/navigation";
 
-export default function Signup() {
-  const router = useRouter();
+export default function Login() {
+    const router = useRouter();
   return (
     <div className="h-screen px-6 md:px-0 bg-[url('/background-auth.webp')] bg-cover w-full flex justify-center items-center">
       <div className="fixed top-8 left-8 text-gray-400 hover:text-gray-200">
@@ -20,12 +20,12 @@ export default function Signup() {
             alt="logo"
           />
         </div>
-        <h1 className=" text-3xl text-center">Create a Voltex Account</h1>
+        <h1 className=" text-3xl text-center">Login to Voltex Account</h1>
         <div className="flex mb-4 ">
-          <div className="text-gray-500 mr-2">Already have an account?</div>
+          <div className="text-gray-500 mr-2">Dont have an Account?</div>
           <button onClick={()=>{
-            router.push("/login")
-          }}>Login.</button>
+            router.push("/signup");
+          }}>Create an Account</button>
         </div>
         <div className="flex gap-4">
           <SignInButton
@@ -52,11 +52,6 @@ export default function Signup() {
         />
 
         <div className="w-full text-sm">Password</div>
-        <input
-          type="password"
-          className="px-4 mb-4 outline-none text-sm py-2 backdrop-filter  backdrop-blur-sm w-full bg-white bg-opacity-20 border rounded-xl border-white border-opacity-30"
-        />
-        <div className="w-full text-sm">Confirm Password</div>
         <input
           type="password"
           className="px-4 mb-4 outline-none text-sm py-2 backdrop-filter  backdrop-blur-sm w-full bg-white bg-opacity-20 border rounded-xl border-white border-opacity-30"

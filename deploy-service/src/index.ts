@@ -1,28 +1,30 @@
 import { createClient } from "redis";
 import { copyFinalDist, downloadFromS3 } from "./utils/aws";
-import { buildProject } from "./utils/buildProject";
+import { buildInDocker} from "./utils/buildProject";
+import dotenv from "dotenv";
+dotenv.config();
 
-const subscriber = createClient({ url: "redis://redis:6379" });
 
-const publisher = createClient({ url: "redis://redis:6379" });
+const subscriber = createClient({ url: process.env.REDIS_URL as string });
+
+export const publisher = createClient({ url: process.env.REDIS_URL as string });
 
 async function main() {
-  await subscriber.connect(); 
- await publisher.connect();
+  await subscriber.connect();
+  await publisher.connect();
   while (true) {
     const response = await subscriber.brPop("build-queue", 0);
-    console.log(response);
-    
-    //@ts-ignore
+    if(!response) return;
     const id = response.element;
-    await downloadFromS3(`output/${id}`);  
+    await downloadFromS3(`output/${id}`);
     console.log("Downloaded");
-    
-    await buildProject(id);
+
+    await buildInDocker(id);
+    // await buildProject2(id);
     console.log("Build complete for:", id);
-    
-    copyFinalDist(id);
-    publisher.hSet("status",id,"deployed");
+
+    await copyFinalDist(id);
+    publisher.hSet("status", id, "deployed");
   }
 }
 

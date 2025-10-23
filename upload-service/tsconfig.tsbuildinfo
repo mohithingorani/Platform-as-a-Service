@@ -1,1 +1,1 @@
-{"root":["./src/aws.ts","./src/index.ts","./src/utils/getallfiles.ts","./src/utils/randomstringgenerator.ts"],"version":"5.8.2"}
+{"root":["./src/aws.ts","./src/index.ts","./src/utils/getallfiles.ts","./src/utils/randomstringgenerator.ts"],"version":"5.8.3"}

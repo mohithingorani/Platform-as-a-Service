@@ -46,7 +46,7 @@ export default function Home() {
       console.log(userInfo);
     }
 
-    
+
   async function deploy() {
     // validate
     const result = githubUrlSchema.safeParse(url);
@@ -93,7 +93,7 @@ export default function Home() {
   }
   return (
     <main className="flex justify-center items-center">
-      {userData && <HomeNavBar username={userData.username} picture={userData.picture } />}
+      {userData && <HomeNavBar name={userData.name.split(" ")[0]} username={userData.username} picture={userData.picture } />}
       <div className="flex flex-col  justify-center items-center mt-24 px-6 md:px-0">
         <div className="max-w-[150px] md:max-w-full">
           <video

@@ -5,6 +5,7 @@ import { z } from "zod";
 import LogsCard from "../components/LogsCard";
 import NavBar from "../components/NavBar";
 import HomeNavBar from "../components/HomeNavBar";
+import Link from "next/link";
 
 const githubUrlSchema = z
   .string()
@@ -14,22 +15,21 @@ const githubUrlSchema = z
     "Must be a valid GitHub repository URL"
   );
 
-  interface UserSessionData{
-    id:string,
-    name:string,
-    username:string,
-    picture:string
-  }
+interface UserSessionData {
+  id: string;
+  name: string;
+  username: string;
+  picture: string;
+}
 export default function Home() {
   const [url, setUrl] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [deployedUrl, setDeployedUrl] = useState<string>("");
+  const [deployedUrl, setDeployedUrl] = useState<string | null>(null);
   const [id, setId] = useState<string>();
 
-  
   const [userData, setUserData] = useState<UserSessionData | null>(null);
-  const [userInformation,setUserInformation] = useState<any>(null);
+  const [userInformation, setUserInformation] = useState<any>(null);
   useEffect(() => {
     async function getData() {
       const userdata = await axios.get("/api/me");
@@ -38,14 +38,13 @@ export default function Home() {
     getData();
   }, []);
 
-    async function setUserInfo() {
-      const userInfo = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users?username=${userData?.username}`
-      );
-      setUserInformation(userInfo.data)
-      console.log(userInfo);
-    }
-
+  async function setUserInfo() {
+    const userInfo = await axios.get(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/users?username=${userData?.username}`
+    );
+    setUserInformation(userInfo.data);
+    console.log(userInfo);
+  }
 
   async function deploy() {
     // validate
@@ -93,7 +92,13 @@ export default function Home() {
   }
   return (
     <main className="flex justify-center items-center">
-      {userData && <HomeNavBar name={userData.name.split(" ")[0]} username={userData.username} picture={userData.picture } />}
+      {userData && (
+        <HomeNavBar
+          name={userData.name.split(" ")[0]}
+          username={userData.username}
+          picture={userData.picture}
+        />
+      )}
       <div className="flex flex-col  justify-center items-center mt-24 px-6 md:px-0">
         <div className="max-w-[150px] md:max-w-full">
           <video
@@ -128,6 +133,12 @@ export default function Home() {
           {loading ? "Deploying" : "Deploy"}
         </button>
         <div className="my-8">{id && <LogsCard id={id} />}</div>
+        {deployedUrl && (
+          <div>
+            <div>Link To Deployed URL : </div>
+            <Link className="text-blue-600 underline cursor-pointer" href={deployedUrl} passHref>{deployedUrl}</Link>
+          </div>
+        )}
       </div>
     </main>
   );

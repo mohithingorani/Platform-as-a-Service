@@ -1,4 +1,4 @@
-import { exec, spawn } from "child_process";
+import { exec } from "child_process";
 import path from "path";
 import { publisher } from "..";
 
@@ -8,58 +8,29 @@ async function publishToRedis(id: string, log: string) {
 }
 
 export function buildProject(id: string) {
-    return new Promise((resolve) => {
-        console.log("Path = ",path.join(__dirname, `output/${id}`));
-        const child = exec(`cd ${path.join(__dirname,'../', `output/${id}`)} && npm install && npm run build`)
-            child.stdout?.on('data', function(data) {
-            console.log('stdout: ' + data);
-        });
-        child.stderr?.on('data', function(data) {
-            console.log('stderr: ' + data);
-        });
-          child.on('close', function(code) {
-           resolve("")
-        });
-
-    })
-}
-
-
-
-export function buildProject2(id: string) {
-  const dir = path.join(__dirname, `../`, `output/${id}`);
   return new Promise((resolve) => {
-    const install = spawn("npm", ["install"], { cwd: dir });
-    install.stdout.on("data", (data) => {
-      const log = "[INSTALL] " + data.toString();
+    const dir = path.join(__dirname, "../", `output/${id}`);
+    console.log("Path =", dir);
+
+    const child = exec(`cd ${dir} && npm install && npm run build`);
+
+    child.stdout?.on("data", async (data) => {
+      const log = "[BUILD] " + data.toString();
       console.log(log);
-      publishToRedis(id, log);
+      await publishToRedis(id, log);
     });
-    install.stderr.on("data", (data) => {
-      const log = "[INSTALL] " + data.toString();
+
+    child.stderr?.on("data", async (data) => {
+      const log = "[BUILD][ERROR] " + data.toString();
+      console.error(log);
+      await publishToRedis(id, log);
+    });
+
+    child.on("close", async (code) => {
+      const log = `[BUILD] process exited with code ${code}`;
       console.log(log);
-      publishToRedis(id, log);
+      await publishToRedis(id, log);
+      resolve("");
     });
-install.on("close", (code) => {
-      const log = `[INSTALL] exited with code ${code}`;
-      console.log(log);
-      publishToRedis(id, log);
-      const build = spawn("npm", ["run", "build"], { cwd: dir });
-      build.stdout.on("data", (data) => {
-        const log = "[BUILD] " + data.toString();
-        publishToRedis(id, log);
-      });
-      build.stderr.on("data", (data) => {
-        const log = "[BUILD] " + data.toString();
-        console.log(log);
-        publishToRedis(id, log);
-      });   build.on("close", (code) => {
-        const log = "[BUILD] exited with code " + code;
-        console.log(log);
-        publishToRedis(id, log);
-        resolve("");
-      });
-    });
-     });
-     
+  });
 }

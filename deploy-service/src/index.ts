@@ -1,7 +1,7 @@
 import { createClient } from "redis";
 import { copyFinalDist, downloadFromS3 } from "./utils/aws";
 import dotenv from "dotenv";
-import { buildProject, buildProject2 } from "./utils/buildProject";
+import { buildProject } from "./utils/buildProject";
 dotenv.config();
 
 

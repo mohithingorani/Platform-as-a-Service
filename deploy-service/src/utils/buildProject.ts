@@ -1,4 +1,5 @@
-import { exec } from "child_process";
+import { spawn } from "child_process";
+
 import path from "path";
 import fs from "fs";
 import { publisher } from "..";
@@ -27,36 +28,48 @@ export async function buildProject(id: string) {
   console.log("Starting build for project:", projectPath);
 
   await new Promise<void>((resolve, reject) => {
-const child = exec(`cd ${projectPath} && npm install && npx vite build`);
+  const child = spawn("npm", ["install"], { cwd: projectPath, shell: true });
 
-    child.stdout?.on("data", async (data) => {
+  child.stdout.on("data", async (data) => {
+    const log = `[INSTALL] ${data.toString()}`;
+    console.log(log);
+    await publishToRedis(id, log);
+  });
+
+  child.stderr.on("data", async (data) => {
+    const log = `[INSTALL ERROR] ${data.toString()}`;
+    console.error(log);
+    await publishToRedis(id, log);
+  });
+
+  child.on("close", (code) => {
+    if (code !== 0) return reject(new Error(`npm install failed with code ${code}`));
+
+    // After install, run build
+    const build = spawn("npx", ["vite", "build"], { cwd: projectPath, shell: true });
+
+    build.stdout.on("data", async (data) => {
       const log = `[BUILD] ${data.toString()}`;
       console.log(log);
       await publishToRedis(id, log);
     });
 
-    child.stderr?.on("data", async (data) => {
-      const log = `[ERROR] ${data.toString()}`;
+    build.stderr.on("data", async (data) => {
+      const log = `[BUILD ERROR] ${data.toString()}`;
       console.error(log);
       await publishToRedis(id, log);
     });
 
-    child.on("close", (code) => {
-      if (code !== 0) {
-        reject(new Error(`Build failed with exit code ${code}.`));
-      } else {
-        console.log(`Build completed for project ${id}`);
-        resolve();
-      }
+    build.on("close", (buildCode) => {
+      if (buildCode !== 0) return reject(new Error(`Build failed with code ${buildCode}`));
+      resolve();
     });
 
-    child.on("error", (err) => {
-      console.error("Exec error:", err);
-      publishToRedis(id, `[ERROR] ${err.message}`);
-      reject(err);
-    });
+    build.on("error", (err) => reject(err));
   });
 
+  child.on("error", (err) => reject(err));
+});
   // Verify that dist folder exists after build
   const distPath = path.join(projectPath, "dist");
   if (!fs.existsSync(distPath)) {

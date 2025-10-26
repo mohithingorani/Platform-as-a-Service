@@ -37,7 +37,7 @@ export default function Home() {
             softwares at scale.
           </div>
           <div className="mt-6 hidden md:inline-block ml-4 md:ml-0 animate-fade-in-up">
-            <GetStartedButton To="/signup" />
+            <GetStartedButton />
           </div>
         </div>
       </div>

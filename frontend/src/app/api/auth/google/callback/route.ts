@@ -47,7 +47,7 @@ redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/google/callback`,
   const user = await userRes.json();
 try{
 
-  await axios.post(`http://localhost:3001/home/users`, {
+  await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/home/users`, {
     username: user.email,
     name: user.name,
     profilePicture: user.picture,

@@ -27,7 +27,7 @@ export async function buildProject(id: string) {
   console.log("Starting build for project:", projectPath);
 
   await new Promise<void>((resolve, reject) => {
-    const child = exec(`cd ${projectPath} && npm install && npm run build`);
+const child = exec(`cd ${projectPath} && npm install && npx vite build`);
 
     child.stdout?.on("data", async (data) => {
       const log = `[BUILD] ${data.toString()}`;

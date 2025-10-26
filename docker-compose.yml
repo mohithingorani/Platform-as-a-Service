@@ -25,16 +25,9 @@ services:
 
   deployment-service:
     build: ./deploy-service
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - shared-output-volume:/app/dist/output
-    environment:
-      - NODE_ENV=production
-      - HOST_SHARED_OUTPUT=/app/dist/output
     depends_on:
       - redis
       - upload-service
-      - postgres
     env_file:
       - ./.env
 

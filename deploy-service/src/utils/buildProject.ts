@@ -26,28 +26,30 @@ export async function buildProject(id: string) {
 
   // Step 1: npm install
   await new Promise<void>((resolve, reject) => {
-    const install = spawn("npm", ["install", "--force"], { cwd: projectPath, shell: true });
-
-    install.stdout.on("data", async (data) => {
-      const log = `[INSTALL] ${data.toString()}`;
-      console.log(log);
-      await publishToRedis(id, log);
-    });
-
-    install.stderr.on("data", async (data) => {
-      const log = `[INSTALL ERROR] ${data.toString()}`;
-      console.error(log);
-      await publishToRedis(id, log);
-    });
-
-    install.on("close", (code) => {
-      if (code !== 0) return reject(new Error(`npm install failed with code ${code}`));
-      resolve();
-    });
-
-    install.on("error", (err) => reject(err));
+  const build = spawn("npx", ["vite", "build"], { 
+    cwd: projectPath, 
+    shell: true 
   });
 
+  build.stdout.on("data", async (data) => {
+    const log = `[BUILD] ${data.toString()}`;
+    console.log(log);
+    await publishToRedis(id, log);
+  });
+
+  build.stderr.on("data", async (data) => {
+    const log = `[BUILD ERROR] ${data.toString()}`;
+    console.error(log);
+    await publishToRedis(id, log);
+  });
+
+  build.on("close", (code) => {
+    if (code !== 0) return reject(new Error(`Build failed with code ${code}`));
+    resolve();
+  });
+
+  build.on("error", (err) => reject(err));
+});
   // Step 2: Run Vite build using local node_modules
   const viteBinary = path.join(projectPath, "node_modules", ".bin", "vite");
   if (!fs.existsSync(viteBinary)) {

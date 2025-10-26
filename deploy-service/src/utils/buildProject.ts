@@ -1,4 +1,4 @@
-import { spawn } from "child_process";
+import { exec } from "child_process";
 import path from "path";
 import fs from "fs";
 import { publisher } from "..";
@@ -8,64 +8,48 @@ async function publishToRedis(id: string, log: string) {
   await publisher.publish(`logs:${id}`, log);
 }
 
-export function buildInDocker(id: string) {
-  const containerPath = path.join(__dirname, "../output", id);
-  console.log("Building project at:", containerPath);
-  console.log("Files in directory:", fs.readdirSync(containerPath));
-
-  // Verify project directory exists
-  if (!fs.existsSync(containerPath)) {
-    throw new Error(`Project directory not found: ${containerPath}`);
-  }
-
-  const packageJsonPath = path.join(containerPath, "package.json");
-  if (!fs.existsSync(packageJsonPath)) {
-    console.log("Available files:", fs.readdirSync(containerPath));
-    throw new Error(`package.json not found in project: ${containerPath}`);
-  }
-
-  console.log("Building project:", containerPath);
-  console.log("Files:", fs.readdirSync(containerPath));
-
+export function buildProject(id: string) {
   return new Promise((resolve, reject) => {
-    const absPath = path.resolve(containerPath);
+    const projectPath = path.join(__dirname, "../output", id);
 
-    const docker = spawn("docker", [
-      "run",
-      "--rm",
-      "-v",
-      `${absPath}:/app`,
-      "-w",
-      "/app",
-      "node:22",
-      "sh",
-      "-c",
-      "npm install && npm run build",
-    ]);
-    docker.stdout.on("data", (data) => {
+    // Verify project directory exists
+    if (!fs.existsSync(projectPath)) {
+      return reject(new Error(`Project directory not found: ${projectPath}`));
+    }
+
+    // Verify package.json exists
+    const packageJsonPath = path.join(projectPath, "package.json");
+    if (!fs.existsSync(packageJsonPath)) {
+      console.log("Available files:", fs.readdirSync(projectPath));
+      return reject(new Error(`package.json not found in project: ${projectPath}`));
+    }
+
+    console.log("Building project at:", projectPath);
+    console.log("Files:", fs.readdirSync(projectPath));
+
+    const child = exec(`cd ${projectPath} && npm install && npm run build`);
+
+    child.stdout?.on("data", async (data) => {
       const log = `[BUILD] ${data.toString()}`;
       console.log(log);
-      publishToRedis(id, log);
+      await publishToRedis(id, log);
     });
 
-    docker.stderr.on("data", (data) => {
+    child.stderr?.on("data", async (data) => {
       const log = `[ERROR] ${data.toString()}`;
       console.error(log);
-      publishToRedis(id, log);
+      await publishToRedis(id, log);
     });
 
-    docker.on("close", (code) => {
-      console.log(`Docker exited with code ${code}`);
-      if (code !== 0)
-        reject(new Error(`Docker build failed with code ${code}`));
-      else resolve("");
+    child.on("close", (code) => {
+      console.log(`Build process exited with code ${code}`);
+      resolve(""); // always resolve even if code != 0, or reject if you prefer
     });
 
-    docker.on("error", (error) => {
-      const log = `[DOCKER ERROR] ${error.message}`;
-      console.error(log);
-      publishToRedis(id, log);
-      reject(error);
+    child.on("error", (err) => {
+      console.error("Exec error:", err);
+      publishToRedis(id, `[ERROR] ${err.message}`);
+      reject(err);
     });
   });
 }

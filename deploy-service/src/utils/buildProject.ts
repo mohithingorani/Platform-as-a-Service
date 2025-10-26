@@ -1,9 +1,8 @@
 import { spawn } from "child_process";
-
 import path from "path";
 import fs from "fs";
 import { publisher } from "..";
-import { copyFinalDist } from "./aws"; // your existing S3 utils
+import { copyFinalDist } from "./aws";
 
 async function publishToRedis(id: string, log: string) {
   console.log("Pushed to redis for id", id);
@@ -13,12 +12,10 @@ async function publishToRedis(id: string, log: string) {
 export async function buildProject(id: string) {
   const projectPath = path.join(__dirname, "../output", id);
 
-  // Verify project directory exists
   if (!fs.existsSync(projectPath)) {
     throw new Error(`Project directory not found: ${projectPath}`);
   }
 
-  // Verify package.json exists
   const packageJsonPath = path.join(projectPath, "package.json");
   if (!fs.existsSync(packageJsonPath)) {
     console.log("Available files:", fs.readdirSync(projectPath));
@@ -27,26 +24,38 @@ export async function buildProject(id: string) {
 
   console.log("Starting build for project:", projectPath);
 
+  // Step 1: npm install
   await new Promise<void>((resolve, reject) => {
-  const child = spawn("npm", ["install"], { cwd: projectPath, shell: true });
+    const install = spawn("npm", ["install", "--force"], { cwd: projectPath, shell: true });
 
-  child.stdout.on("data", async (data) => {
-    const log = `[INSTALL] ${data.toString()}`;
-    console.log(log);
-    await publishToRedis(id, log);
+    install.stdout.on("data", async (data) => {
+      const log = `[INSTALL] ${data.toString()}`;
+      console.log(log);
+      await publishToRedis(id, log);
+    });
+
+    install.stderr.on("data", async (data) => {
+      const log = `[INSTALL ERROR] ${data.toString()}`;
+      console.error(log);
+      await publishToRedis(id, log);
+    });
+
+    install.on("close", (code) => {
+      if (code !== 0) return reject(new Error(`npm install failed with code ${code}`));
+      resolve();
+    });
+
+    install.on("error", (err) => reject(err));
   });
 
-  child.stderr.on("data", async (data) => {
-    const log = `[INSTALL ERROR] ${data.toString()}`;
-    console.error(log);
-    await publishToRedis(id, log);
-  });
+  // Step 2: Run Vite build using local node_modules
+  const viteBinary = path.join(projectPath, "node_modules", ".bin", "vite");
+  if (!fs.existsSync(viteBinary)) {
+    throw new Error(`Vite binary not found at ${viteBinary}. Did npm install fail?`);
+  }
 
-  child.on("close", (code) => {
-    if (code !== 0) return reject(new Error(`npm install failed with code ${code}`));
-
-    // After install, run build
-    const build = spawn("npx", ["vite", "build"], { cwd: projectPath, shell: true });
+  await new Promise<void>((resolve, reject) => {
+    const build = spawn(viteBinary, ["build"], { cwd: projectPath, shell: true });
 
     build.stdout.on("data", async (data) => {
       const log = `[BUILD] ${data.toString()}`;
@@ -60,26 +69,22 @@ export async function buildProject(id: string) {
       await publishToRedis(id, log);
     });
 
-    build.on("close", (buildCode) => {
-      if (buildCode !== 0) return reject(new Error(`Build failed with code ${buildCode}`));
+    build.on("close", (code) => {
+      if (code !== 0) return reject(new Error(`Build failed with code ${code}`));
       resolve();
     });
 
     build.on("error", (err) => reject(err));
   });
 
-  child.on("error", (err) => reject(err));
-});
-  // Verify that dist folder exists after build
+  // Step 3: Verify dist folder exists
   const distPath = path.join(projectPath, "dist");
   if (!fs.existsSync(distPath)) {
     console.log("Available files after build:", fs.readdirSync(projectPath));
-    throw new Error(
-      `Dist folder not found at: ${distPath}. Build likely failed.`
-    );
+    throw new Error(`Dist folder not found at: ${distPath}. Build likely failed.`);
   }
 
-  // Copy the final build to S3
+  // Step 4: Upload dist to S3
   await copyFinalDist(id);
   console.log(`Build and upload complete for project ${id}`);
 }

@@ -76,15 +76,9 @@ async function downloadFromS3(prefix: string) {
 }
 
 export async function copyFinalDist(id: string) {
-  const folderPath = path.join(__dirname, `../output/${id}`);
-
-  // Check if dist folder exists
-  const distPath = path.join(folderPath, "dist");
-  if (!fs.existsSync(distPath)) {
-    throw new Error(
-      `Dist folder not found at: ${distPath}. Build likely failed.`
-    );
-  }
+  console.log(__dirname);
+  const folderPath = path.join(__dirname,"../", `output/${id}/dist`);
+  
   const allFiles = getAllFiles(folderPath);
   await Promise.all(
     allFiles.map((file) => {

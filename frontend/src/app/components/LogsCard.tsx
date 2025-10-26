@@ -6,7 +6,7 @@ export default function LogsCard({ id }: { id: string }) {
   const [messages, setMessages] = useState<string[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
-  const WS_URL = "ws://localhost:8081/";
+  const WS_URL = process.env.NEXT_PUBLIC_WS_URL
   const divRef = useRef<any>(null);
 
   useEffect(() => {

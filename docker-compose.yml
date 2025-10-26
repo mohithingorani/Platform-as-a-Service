@@ -1,84 +1,84 @@
-  version: "3.9"
+services:
+  redis:
+    image: redis:7
+    container_name: myredis
+    ports:
+      - "6379:6379"
 
-  services:
-    redis:
-      image: redis:7
-      container_name: myredis
-      ports:
-        - "6379:6379"
+  upload-service:
+    build: ./upload-service
+    ports:
+      - "3011:3000"
+    depends_on:
+      - redis
+    env_file:
+      - ./.env
 
-    upload-service:
-      build: ./upload-service
-      ports:
-        - "3011:3000"
-      depends_on:
-        - redis
-      env_file:
-        - ./.env
+  postgres:
+    image: postgres:15
+    container_name: mypostgres
+    restart: always
+    env_file:
+      - ./.env
+    ports:
+      - "5439:5432"
 
-    postgres:
-      image: postgres:15
-      container_name: mypostgres
-      restart: always
-      env_file:
-        - ./.env
-      ports:
-        - "5439:5432"
+  deployment-service:
+    build: ./deploy-service
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - shared-output-volume:/app/dist/output
+    environment:
+      - NODE_ENV=production
+      - HOST_SHARED_OUTPUT=/app/dist/output
+    depends_on:
+      - redis
+      - upload-service
+      - postgres
+    env_file:
+      - ./.env
 
-    deployment-service:
-      build: ./deploy-service
-      volumes:
-        - /var/run/docker.sock:/var/run/docker.sock
-        - shared-output-volume:/app/dist/output  # Changed to named volume
-      environment:
-        - NODE_ENV=production
-        # Remove HOST_SHARED_OUTPUT or set it to container path
-        - HOST_SHARED_OUTPUT=/app/dist/output
-      depends_on:
-        - redis
-        - upload-service
-        - postgres
-      env_file:
-        - ./.env
+  request-handler-service:
+    build: ./request-handler
+    ports:
+      - "3012:3001"
+    depends_on:
+      - redis
+    env_file:
+      - ./.env
 
-    request-handler-service:
-      build: ./request-handler
-      ports:
-        - "3012:3001"
-      depends_on:
-        - redis
-      env_file:
-        - ./.env
-    
-    frontend:
-      build: ./frontend
-      ports:
-        - "3014:3000"
-      depends_on:
-        - upload-service
-        - deployment-service
-        - request-handler-service
-        - websocket-backend
-        - postgres
-      env_file:
-        - ./frontend/.env
-    
-    user-backend:
-      build : ./user-backend
-      ports:
-        - "3010:3020"
-      depends_on:
-        - postgres
-      env_file:
-        ./user-backend/.env
+  frontend:
+    build: ./frontend
+    ports:
+      - "3014:3000"
+    depends_on:
+      - upload-service
+      - deployment-service
+      - request-handler-service
+      - websocket-backend
+      - postgres
+    env_file:
+      - ./frontend/.env
 
-    websocket-backend:
-      build: ./ws-server
-      ports:
-        - "8081:8080"
-      depends_on:
-        - upload-service
-        - deployment-service
-        - redis
-      env_file:
-        - ./.env
+  user-backend:
+    build: ./user-backend
+    ports:
+      - "3010:3020"
+    depends_on:
+      - postgres
+    env_file:
+      - ./user-backend/.env
+
+  websocket-backend:
+    build: ./ws-server
+    ports:
+      - "8081:8080"
+    depends_on:
+      - upload-service
+      - deployment-service
+      - redis
+    env_file:
+      - ./.env
+
+volumes:
+  shared-output-volume:

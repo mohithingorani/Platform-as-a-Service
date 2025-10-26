@@ -9,8 +9,8 @@ export async function GET(request: Request) {
     return (
       NextResponse.json({
         error: "Missing Code",
-      }),
-      { status: 400 }
+      },
+      { status: 400 })
     );
   }
 
@@ -34,8 +34,8 @@ redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/google/callback`,
     return (
       NextResponse.json({
         error: "Failed to get access token",
-      }),
-      { status: 400 }
+      },
+      { status: 400 })
     );
   }
   const accessToken = tokenData.access_token;

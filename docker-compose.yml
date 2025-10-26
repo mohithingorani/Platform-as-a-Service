@@ -16,6 +16,15 @@
       env_file:
         - ./.env
 
+    postgres:
+      image: postgres:15
+      container_name: mypostgres
+      restart: always
+      env_file:
+        - ./.env
+      ports:
+        - "5439:5432"
+
     deployment-service:
       build: ./deploy-service
       volumes:
@@ -26,6 +35,7 @@
       depends_on:
         - redis
         - upload-service
+        - postgres
       env_file:
         - ./.env
 
@@ -47,8 +57,18 @@
         - deployment-service
         - request-handler-service
         - websocket-backend
+        - postgres
       env_file:
         - ./frontend/.env
+    
+    user-backend:
+      build : ./user-backend
+      ports:
+        - "3010:3020"
+      depends_on:
+        - postgres
+      env_file:
+        ./user-backend/.env
 
     websocket-backend:
       build: ./ws-server

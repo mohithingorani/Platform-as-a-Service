@@ -5,8 +5,9 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   if (!code) {
-    return NextResponse.json({ error: "Missing Code" }), { status: 400 };
-  }
+  return NextResponse.json({ error: "Missing Code" }, { status: 400 });
+}
+
 
   // Exchanging code for token
   const tokenRes = await fetch("https://github.com/login/oauth/access_token", {

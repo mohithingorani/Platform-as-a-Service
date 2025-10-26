@@ -1,13 +1,12 @@
 import { spawn } from "child_process";
 import path from "path";
-import fs from "fs";
 import { publisher } from "..";
-import { copyFinalDist } from "./aws";
 
 async function publishToRedis(id: string, log: string) {
   console.log("Pushed to redis for id", id);
   await publisher.publish(`logs:${id}`, log);
 }
+
 
 export function buildProject2(id: string) {
   const dir = path.join(__dirname, `../`, `output/${id}`);
@@ -23,7 +22,7 @@ export function buildProject2(id: string) {
       console.log(log);
       publishToRedis(id, log);
     });
-    install.on("close", (code) => {
+install.on("close", (code) => {
       const log = `[INSTALL] exited with code ${code}`;
       console.log(log);
       publishToRedis(id, log);
@@ -36,13 +35,12 @@ export function buildProject2(id: string) {
         const log = "[BUILD] " + data.toString();
         console.log(log);
         publishToRedis(id, log);
-      });
-      build.on("close", (code) => {
+      });   build.on("close", (code) => {
         const log = "[BUILD] exited with code " + code;
         console.log(log);
         publishToRedis(id, log);
         resolve("");
       });
     });
-  });
+     });
 }

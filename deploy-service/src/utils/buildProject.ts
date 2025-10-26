@@ -69,41 +69,67 @@ async function publishToRedis(id: string, log: string) {
 // }
 export function buildInDocker(id: string) {
   const containerPath = path.join(__dirname, "../", `output/${id}`);
-  const hostBase = process.env.HOST_SHARED_OUTPUT; // e.g., /Users/you/project/shared-output
-  const hostPath = hostBase ?path.join(hostBase, id):containerPath;
+  
+  // In Docker environment, use the container path directly
+  // The downloaded files are already in the container at this path
+  const hostPath = containerPath;
 
   console.log("Container Path:", containerPath);
   console.log("Host Directory:", hostPath);
-  console.log("Files:", fs.readdirSync(containerPath));
+  
+  // Verify the project exists
+  if (!fs.existsSync(containerPath)) {
+    throw new Error(`Project directory not found: ${containerPath}`);
+  }
+  
+  const packageJsonPath = path.join(containerPath, 'package.json');
+  if (!fs.existsSync(packageJsonPath)) {
+    console.log("Available files:", fs.readdirSync(containerPath));
+    throw new Error(`package.json not found in: ${containerPath}`);
+  }
+
+  console.log("Files in project directory:", fs.readdirSync(containerPath));
 
   return new Promise((resolve, reject) => {
     const docker = spawn("docker", [
       "run",
       "--rm",
       "-v",
-      `${hostPath}:/app`,
+      `${containerPath}:/app`,  // Mount the specific project directory
       "-w",
       "/app",
       "node:22",
-      "bash",
+      "sh",
       "-c",
       "npm install && npm run build",
     ]);
 
     docker.stdout.on("data", (data) => {
-      const log = `[BUILD] + ${data.toString()}`
-     publishToRedis(id,log);
-      console.log(data.toString());
+      const log = `[BUILD] ${data.toString()}`;
+      publishToRedis(id, log);
+      console.log(log);
     });
+    
     docker.stderr.on("data", (data) => {
-      const log = `[ERROR] + ${data.toString()}`
-      publishToRedis(id,log);
-      console.error(data.toString());
+      const log = `[ERROR] ${data.toString()}`;
+      publishToRedis(id, log);
+      console.error(log);
     });
 
     docker.on("close", (code) => {
       console.log(`Docker exited with code ${code}`);
-      resolve("");
+      if (code !== 0) {
+        reject(new Error(`Docker build failed with code ${code}`));
+      } else {
+        resolve("");
+      }
+    });
+
+    docker.on("error", (error) => {
+      console.error('Docker spawn error:', error);
+      const log = `[DOCKER ERROR] ${error.message}`;
+      publishToRedis(id, log);
+      reject(error);
     });
   });
 }

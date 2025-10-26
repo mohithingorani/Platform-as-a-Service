@@ -1,7 +1,7 @@
 import { createClient } from "redis";
 import { copyFinalDist, downloadFromS3 } from "./utils/aws";
 import dotenv from "dotenv";
-import { buildProject } from "./utils/buildProject";
+import { buildProject2 } from "./utils/buildProject";
 dotenv.config();
 
 
@@ -19,7 +19,8 @@ async function main() {
     await downloadFromS3(`output/${id}`);
     console.log("Downloaded");
 
-    await buildProject(id);
+    await buildProject2(id);
+    await copyFinalDist(id);
     // await buildProject2(id);
     console.log("Build complete for:", id);
 

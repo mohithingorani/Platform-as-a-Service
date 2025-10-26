@@ -10,6 +10,8 @@ async function publishToRedis(id: string, log: string) {
 
 export function buildInDocker(id: string) {
   const containerPath = path.join(__dirname, "../output", id);
+  console.log("Building project at:", containerPath);
+  console.log("Files in directory:", fs.readdirSync(containerPath));
 
   // Verify project directory exists
   if (!fs.existsSync(containerPath)) {
@@ -26,19 +28,20 @@ export function buildInDocker(id: string) {
   console.log("Files:", fs.readdirSync(containerPath));
 
   return new Promise((resolve, reject) => {
+    const absPath = path.resolve(containerPath);
+
     const docker = spawn("docker", [
       "run",
       "--rm",
       "-v",
-      `${containerPath}:/app`,  // Mount project directory
+      `${absPath}:/app`,
       "-w",
       "/app",
-      "node:22",                // Node image
+      "node:22",
       "sh",
       "-c",
-      "npm install && npm run build"
+      "npm install && npm run build",
     ]);
-
     docker.stdout.on("data", (data) => {
       const log = `[BUILD] ${data.toString()}`;
       console.log(log);
@@ -53,7 +56,8 @@ export function buildInDocker(id: string) {
 
     docker.on("close", (code) => {
       console.log(`Docker exited with code ${code}`);
-      if (code !== 0) reject(new Error(`Docker build failed with code ${code}`));
+      if (code !== 0)
+        reject(new Error(`Docker build failed with code ${code}`));
       else resolve("");
     });
 

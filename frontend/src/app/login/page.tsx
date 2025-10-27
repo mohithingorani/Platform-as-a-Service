@@ -78,7 +78,7 @@ function SignInButton({
     <a href={href}>
       <button
         className="flex group backdrop-filter text-sm backdrop-blur-sm bg-opacity-20 border border-gray-100
- gap-1 md:gap-3 px-2 py-1 md:px-6 md:py-3 bg-white hover:bg-opacity-100 transition duration-300  rounded-xl  border-opacity-30"
+ gap-1 md:gap-3 px-3 py-4 md:px-6 md:py md:py-3 bg-white hover:bg-opacity-100 transition duration-300  rounded-xl  border-opacity-30"
       >
         <Image
           className="group-hover:invert transition duration-300"

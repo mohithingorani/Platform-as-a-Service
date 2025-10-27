@@ -91,7 +91,7 @@ export default function Home() {
     }
   }
   return (
-    <main className="flex justify-center items-center">
+    <main className="flex justify-center items-center h-screen bg-black">
       {userData && (
         <HomeNavBar
           name={userData.name.split(" ")[0]}

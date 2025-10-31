@@ -58,7 +58,7 @@ export default function Login() {
         />
 
         <button className=" px-4 mt-4 opacity-30 hover:opacity-100 hover:bg-white hover:text-black transition duration-300  outline-none py-2 w-full bg-white bg-opacity-10 border rounded-xl border-white border-opacity-30">
-          Create Account
+          Login Now
         </button>
       </div>
     </div>
@@ -94,3 +94,4 @@ function SignInButton({
     </a>
   );
 }
+

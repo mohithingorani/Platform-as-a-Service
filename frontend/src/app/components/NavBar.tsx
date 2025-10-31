@@ -1,6 +1,4 @@
-"use client"
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import GetStartedButton from "./GetStartedButton";
 
 const options = [
@@ -48,3 +46,4 @@ export default function NavBar() {
     </div>
   );
 }
+

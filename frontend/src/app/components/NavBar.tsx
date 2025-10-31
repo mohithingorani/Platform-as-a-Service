@@ -1,6 +1,6 @@
 import Image from "next/image";
 import GetStartedButton from "./GetStartedButton";
-
+import LoginButton from "./LoginButton";
 const options = [
   { name: "Deployments" },
   { name: "Help" },
@@ -35,9 +35,7 @@ export default function NavBar() {
         </div>
         <div className="md:flex-1">
           <div className="flex justify-center gap-2 md:gap-8  items-center">
-            <button className="opacity-50 text-xs md:text-sm hover:opacity-100">
-                Login
-            </button>
+            <LoginButton/>
 
             <GetStartedButton/>
           </div>
@@ -46,4 +44,5 @@ export default function NavBar() {
     </div>
   );
 }
+
 

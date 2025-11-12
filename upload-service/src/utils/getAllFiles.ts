@@ -15,10 +15,8 @@ export default function getAllFiles(folderPath:string){
     allFilesAndFolders.forEach(file=>{
         const fullFilePath = path.join(folderPath,file);
         if(fs.statSync(fullFilePath).isDirectory()){
-            // We use concat becausae 
-            // we dont want to push arrays inside
-            // array but only file names
-            response = response.concat(getAllFiles(fullFilePath));
+            // Push files directly instead of concat to avoid creating new arrays
+            response.push(...getAllFiles(fullFilePath));
         }
         else{
             response.push(fullFilePath);

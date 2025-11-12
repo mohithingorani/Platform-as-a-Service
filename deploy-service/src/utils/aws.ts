@@ -93,7 +93,8 @@ const getAllFiles = (folderPath: string) => {
   allFilesAndFolders.forEach((file) => {
     const fullFilePath = path.join(folderPath, file);
     if (fs.statSync(fullFilePath).isDirectory()) {
-      response = response.concat(getAllFiles(fullFilePath));
+      // Push files directly instead of concat to avoid creating new arrays
+      response.push(...getAllFiles(fullFilePath));
     } else {
       response.push(fullFilePath);
     }
@@ -102,10 +103,10 @@ const getAllFiles = (folderPath: string) => {
 };
 
 const uploadFile = async (fileName: string, localFilePath: string) => {
-  const fileContent = fs.readFileSync(localFilePath);
+  const fileStream = fs.createReadStream(localFilePath);
   const response = await s3
     .upload({
-      Body: fileContent,
+      Body: fileStream,
       Bucket: "paas",
       Key: fileName,
     })

@@ -9,7 +9,14 @@ import { createClient } from "redis";
 const app = express();
 
 const publisher = createClient({ url: `${process.env.REDIS_URL}` as string });
-publisher.connect();
+publisher.connect().catch((err) => {
+  console.error("Failed to connect to Redis:", err);
+  process.exit(1);
+});
+
+publisher.on("error", (err) => {
+  console.error("Redis client error:", err);
+});
 
 app.use(cors());
 app.use(express.json());

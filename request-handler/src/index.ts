@@ -1,6 +1,7 @@
 import express from "express"
 import { S3 } from "aws-sdk";
 import * as dotenv from "dotenv";
+import mime from "mime-types";
 dotenv.config();
 
 const s3 = new S3({
@@ -25,13 +26,12 @@ app.get("*", async (req, res) => {
       Key: key,
     }).promise();
 
-    const type = filePath.endsWith("html")
-      ? "text/html"
-      : filePath.endsWith("css")
-      ? "text/css"
-      : "application/javascript";
+    // Use mime-types library for proper content type detection
+    const contentType = mime.lookup(filePath) || "application/octet-stream";
 
-    res.set("Content-Type", type);
+    res.set("Content-Type", contentType);
+    // Add caching headers for static assets (1 hour)
+    res.set("Cache-Control", "public, max-age=3600");
     res.send(contents.Body);
 
   } catch (err: any) {

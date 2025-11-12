@@ -15,7 +15,17 @@ wss.on("connection", async function connection(ws) {
     url: process.env.REDIS_URL,
   });
   
-  await subscriber.connect();
+  try {
+    await subscriber.connect();
+    
+    subscriber.on("error", (error) => {
+      console.error("Redis subscriber error:", error);
+    });
+  } catch (error) {
+    console.error("Failed to connect subscriber to Redis:", error);
+    ws.close();
+    return;
+  }
 
   ws.on("error", (error) => {
     console.log("WebSocket error:", error);
@@ -44,7 +54,11 @@ wss.on("connection", async function connection(ws) {
 
   ws.on("close", async () => {
     console.log("Client disconnected");
-    await subscriber.unsubscribe();
-    await subscriber.quit();
+    try {
+      await subscriber.unsubscribe();
+      await subscriber.quit();
+    } catch (err) {
+      console.error("Error cleaning up Redis subscriber:", err);
+    }
   });
 });

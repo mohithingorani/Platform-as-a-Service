@@ -31,6 +31,28 @@ export async function GET(request: Request) {
   });
 
   const user = await userRes.json();
+
+  // Try to fetch the user's primary email (requires `user:email` scope).
+  let email: string | undefined;
+  try {
+    const emailRes = await fetch("https://api.github.com/user/emails", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    if (emailRes.ok) {
+      const emails = (await emailRes.json()) as Array<{
+        email: string;
+        primary?: boolean;
+        verified?: boolean;
+      }>;
+      email =
+        emails.find((e) => e.primary && e.verified)?.email ||
+        emails.find((e) => e.primary)?.email ||
+        emails.find((e) => e.verified)?.email ||
+        emails[0]?.email;
+    }
+  } catch {
+    // ignore
+  }
   try {
     await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
       name: user.name,
@@ -47,14 +69,23 @@ export async function GET(request: Request) {
 
   // CREATE SESSION COOKIE
   const res = NextResponse.redirect(`${baseUrl}/home`);
-  res.cookies.set("session", JSON.stringify({ id:user.id,
-    name:user.name,
-    username:user.login,
-    picture:user.avatar_url
-  }), {
+  res.cookies.set(
+    "session",
+    encodeURIComponent(
+      JSON.stringify({
+        id: user.id,
+        name: user.name,
+        username: user.login,
+        picture: user.avatar_url,
+        email,
+        authProvider: "oauth",
+      })
+    ),
+    {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     path: "/",
-  });
+    }
+  );
   return res;
 }

@@ -2,12 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8081";
+
 export default function LogsCard({ id }: { id: string }) {
   const [messages, setMessages] = useState<string[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
-  const WS_URL = "ws://localhost:8081/";
-  const divRef = useRef<any>(null);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages.length]);
 
   useEffect(() => {
     if (!WS_URL || !id) return;
@@ -20,16 +25,18 @@ export default function LogsCard({ id }: { id: string }) {
     ws.onopen = () => {
       console.log("WebSocket open → sending ID:", id);
       setIsConnected(true);
-      ws.send(JSON.stringify({ message: { id, type: "start" } }));
+      setTimeout(() => {
+        const msg = JSON.stringify({ message: { id, type: "start" } });
+        console.log("Sending:", msg);
+        ws.send(msg);
+      }, 500);
     };
 
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
         if (data.logs) {
-          
           setMessages((prev) => [...prev, data.logs]);
-          scrollToBottom();
         }
       } catch (err) {
         console.error("Bad message", err);
@@ -49,18 +56,14 @@ export default function LogsCard({ id }: { id: string }) {
     // cleanup
     return () => {
       console.log("Cleaning up WebSocket for ID:", id);
-      if (ws.readyState === WebSocket.OPEN) {
+      try {
         ws.close();
+      } catch {
+        // ignore
       }
       wsRef.current = null;
     };
   }, [id]);
-
-  const scrollToBottom = () => {
-    if (divRef.current) {
-      divRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
-    }
-  };
 
 
 
@@ -69,26 +72,28 @@ export default function LogsCard({ id }: { id: string }) {
   return (
     <div>
       <div>
-        <h3 className=" font-bold">id:{id}</h3>
-        {/* <div className="text-sm ">
-        Status: {isConnected ? "Connected" : "Disconnected"}
-      </div> */}
+        <div className="flex items-center justify-between gap-3">
+          <div className="text-xs text-zinc-500 break-all">{id}</div>
+          <div className="text-xs text-zinc-500">
+            {isConnected ? "Connected" : "Disconnected"}
+          </div>
+        </div>
       </div>
-      <div
-        ref={divRef}
-        className=" bg-black  w-[700px] h-[500px] min-h-[500px] overflow-y-scroll text-xs font-commitmono border border-gray-400/40  text-green-600 p-4 rounded-lg"
-      >
+      <div className="bg-black w-full h-[420px] md:h-[500px] min-h-[420px] overflow-y-scroll text-xs font-commitmono border border-gray-400/40 text-green-600 p-4 rounded-lg">
         <pre className=" whitespace-pre-wrap  font-commitmono">
-          {messages.map((message) => (
-            <>
-              {message.startsWith("[BUILD]") ? (
-                <div className="text-green-400">{message}</div>
-              ) : (
-                <div className="text-red-500">{message}</div>
-              )}
-            </>
-          ))}
+          {messages.map((message, idx) =>
+            message.startsWith("[BUILD]") ? (
+              <div key={idx} className="text-green-400">
+                {message}
+              </div>
+            ) : (
+              <div key={idx} className="text-red-500">
+                {message}
+              </div>
+            )
+          )}
         </pre>
+        <div ref={bottomRef} />
       </div>
     </div>
   );

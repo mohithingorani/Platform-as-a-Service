@@ -1,5 +1,3 @@
-  version: "3.9"
-
   services:
     redis:
       image: redis:7
@@ -20,8 +18,10 @@
       image: postgres:15
       container_name: mypostgres
       restart: always
-      env_file:
-        - ./.env
+      environment:
+        - POSTGRES_PASSWORD=postgres
+        - POSTGRES_USER=postgres
+        - POSTGRES_DB=postgres
       ports:
         - "5439:5432"
 
@@ -31,7 +31,7 @@
         - /var/run/docker.sock:/var/run/docker.sock
         - ./shared-output:/app/dist/output
       environment:
-        - HOST_SHARED_OUTPUT=${PWD}/shared-output
+        - HOST_SHARED_OUTPUT=${COMPOSE_PROJECT_DIR:-${PWD}}/shared-output
       depends_on:
         - redis
         - upload-service
@@ -64,7 +64,7 @@
     user-backend:
       build : ./user-backend
       ports:
-        - "3010:3020"
+        - "3010:3019"
       depends_on:
         - postgres
       env_file:
@@ -73,7 +73,7 @@
     websocket-backend:
       build: ./ws-server
       ports:
-        - "8081:8080"
+        - "8081:8081"
       depends_on:
         - upload-service
         - deployment-service

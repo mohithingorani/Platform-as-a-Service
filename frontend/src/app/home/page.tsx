@@ -105,7 +105,7 @@ function DashboardContent() {
   const fetchDeployments = useCallback(async () => {
     try {
       const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_DEPLOYMENTS_URL}`
+        `${process.env.NEXT_PUBLIC_UPLOAD_URL}/deployments`
       );
       if (res.data && Array.isArray(res.data)) {
         setDeployments(
@@ -149,7 +149,7 @@ function DashboardContent() {
 
     try {
       const deployRepo = await axios.post(
-        `${process.env.NEXT_PUBLIC_UPLOAD_URL}`,
+        `${process.env.NEXT_PUBLIC_UPLOAD_URL}/deploy`,
         { repoUrl: url }
       );
 
@@ -172,7 +172,7 @@ function DashboardContent() {
       const intervalId = setInterval(async () => {
         try {
           const statusRes = await axios.get(
-            `${process.env.NEXT_PUBLIC_STATUS_BACKEND}?id=${deploymentId}`
+            `${process.env.NEXT_PUBLIC_UPLOAD_URL}/status?id=${deploymentId}`
           );
           if (statusRes.data.status === "deployed") {
             clearInterval(intervalId);

@@ -1,7 +1,8 @@
-import { exec, spawn } from "child_process";
-import path, { resolve } from "path";
+import { exec, spawn, execSync } from "child_process";
+import path from "path";
 import { publisher } from "..";
 import fs from "fs";
+import os from "os";
 
 // export function buildProject(id: string) {
 //     return new Promise((resolve) => {
@@ -25,6 +26,23 @@ import fs from "fs";
 async function publishToRedis(id: string, log: string) {
   console.log("Pushed to redis for id", id);
   await publisher.publish(`logs:${id}`, log);
+  await publisher.lPush(`logs:list:${id}`, log);
+  await publisher.lTrim(`logs:list:${id}`, 0, 999);
+}
+
+function detectHostMountSource(destination: string): string | undefined {
+  // deploy-service runs inside Docker, but it shells out to the *host* Docker daemon
+  // (via /var/run/docker.sock). For `docker run -v <src>:<dst>`, <src> must be a host path.
+  // Discover it by inspecting this container's mounts.
+  try {
+    const self = os.hostname();
+    const raw = execSync(`docker inspect ${self}`, { encoding: "utf8" });
+    const info = JSON.parse(raw)?.[0];
+    const mounts: Array<{ Destination?: string; Source?: string }> = info?.Mounts || [];
+    return mounts.find((m) => m.Destination === destination)?.Source;
+  } catch {
+    return undefined;
+  }
 }
 
 // export function buildProject2(id: string) {
@@ -69,14 +87,41 @@ async function publishToRedis(id: string, log: string) {
 // }
 export function buildInDocker(id: string) {
   const containerPath = path.join(__dirname, "../", `output/${id}`);
-  const hostBase = process.env.HOST_SHARED_OUTPUT; // e.g., /Users/you/project/shared-output
-  const hostPath = hostBase ?path.join(hostBase, id):containerPath;
+  const detectedHostBase = detectHostMountSource("/app/dist/output");
+  const hostBase = detectedHostBase || process.env.HOST_SHARED_OUTPUT; // e.g., /Users/you/project/shared-output
+  const hostPath = hostBase ? path.join(hostBase, id) : undefined;
 
   console.log("Container Path:", containerPath);
   console.log("Host Directory:", hostPath);
-  console.log("Files:", fs.readdirSync(containerPath));
+
+  // hostPath is a host filesystem path (used by the host Docker daemon).
+  // It is not visible inside this container, so we cannot fs.existsSync(hostPath) here.
+
+  if (!fs.existsSync(containerPath)) {
+    const msg = `build folder not found: ${containerPath}`;
+    console.log("Error:", msg);
+    publisher.hSet("status", id, "failed");
+    publisher.hSet("failureReason", id, msg);
+    publisher.hSet("failedAt", id, String(Date.now()));
+    return Promise.reject(new Error(msg));
+  }
+
+  const files = fs.readdirSync(containerPath);
+  console.log("Files:", files);
 
   return new Promise((resolve, reject) => {
+    if (!hostPath) {
+      publisher.hSet("status", id, "failed");
+      publisher.hSet(
+        "failureReason",
+        id,
+        "could not determine host path for /app/dist/output (HOST_SHARED_OUTPUT misconfigured)"
+      );
+      publisher.hSet("failedAt", id, String(Date.now()));
+      reject(new Error("Missing hostPath for docker bind mount"));
+      return;
+    }
+
     const docker = spawn("docker", [
       "run",
       "--rm",
@@ -92,18 +137,27 @@ export function buildInDocker(id: string) {
 
     docker.stdout.on("data", (data) => {
       const log = `[BUILD] + ${data.toString()}`
-     publishToRedis(id,log);
+      publishToRedis(id, log);
       console.log(data.toString());
     });
     docker.stderr.on("data", (data) => {
       const log = `[ERROR] + ${data.toString()}`
-      publishToRedis(id,log);
+      publishToRedis(id, log);
       console.error(data.toString());
     });
 
     docker.on("close", (code) => {
       console.log(`Docker exited with code ${code}`);
-      resolve("");
+      if (code === 0) {
+        resolve("");
+        return;
+      }
+
+      // Mark build as failed; deploy-service main loop should not publish dist.
+      publisher.hSet("status", id, "failed");
+      publisher.hSet("failureReason", id, `docker exited with code ${code}`);
+      publisher.hSet("failedAt", id, String(Date.now()));
+      reject(new Error(`Build failed for ${id} (code ${code})`));
     });
   });
 }

@@ -165,7 +165,7 @@ export default function LandingPage() {
 
       <main>
         {/* Hero Section */}
-        <section className="relative pt-32 pb-20 px-6 overflow-hidden">
+        <section className="relative pt-32 pb-20 px-6 overflow-hidden min-h-screen flex items-center">
           {/* Background effects */}
           <div className="absolute inset-0 bg-glow -z-10" />
           <div className="absolute inset-0 bg-grid opacity-30 -z-10" />

@@ -60,7 +60,6 @@ app.get("*", async (req, res) => {
         : "public, max-age=300"
     );
     res.send(contents.Body);
-
   } catch (err: any) {
     if (err.code === 'NoSuchKey') {
       res.status(404).send("File not found");

@@ -1,5 +1,5 @@
-import fs from "fs"
-import path from "path"
+import fs from "fs";
+import path from "path";
 
 
 
@@ -8,23 +8,21 @@ import path from "path"
     //because in the root directory, there exists
     //both files and folders.
 
-export default function getAllFiles(folderPath:string){
-    let response:string[] = [];
+export default function getAllFiles(folderPath: string) {
+  let response: string[] = [];
 
-    const allFilesAndFolders = fs.readdirSync(folderPath);
-    allFilesAndFolders.forEach(file=>{
-        const fullFilePath = path.join(folderPath,file);
-        if(fs.statSync(fullFilePath).isDirectory()){
-            // We use concat becausae 
-            // we dont want to push arrays inside
-            // array but only file names
-            response = response.concat(getAllFiles(fullFilePath));
-        }
-        else{
-            response.push(fullFilePath);
-        }
-        
-    })
-    console.log(response);
-    return response;
-}   
+  const ignoreDirs = new Set([".git", "node_modules", ".next", "dist", "build"]);
+
+  const allFilesAndFolders = fs.readdirSync(folderPath);
+  allFilesAndFolders.forEach((file) => {
+    if (ignoreDirs.has(file)) return;
+    const fullFilePath = path.join(folderPath, file);
+    if (fs.statSync(fullFilePath).isDirectory()) {
+      response = response.concat(getAllFiles(fullFilePath));
+    } else {
+      response.push(fullFilePath);
+    }
+  });
+
+  return response;
+}

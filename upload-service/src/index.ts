@@ -113,8 +113,7 @@ app.get("/deployments", async (req, res) => {
         else if (rawStatus.startsWith("failed")) status = "failed";
         else if (rawStatus === "unknown") status = "pending";
 
-        const url = status === "deployed" ? `http://${id}.deploy.mohit-hingorani.tech` : undefined;
-
+        const url = `http://${id}.deploy.mohit.systems`;
         const startedAtMs = buildStartedAt ? Number(buildStartedAt) : undefined;
         const completedAtMs = deployedAt ? Number(deployedAt) : failedAt ? Number(failedAt) : undefined;
         const durationMs =

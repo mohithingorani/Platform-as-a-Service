@@ -65,15 +65,15 @@ Voltex enables developers to deploy frontend projects effortlessly by leveraging
                  └────────┬────────┘            │
                           │                     │
                  ┌────────▼────────┐            │
-                 │  WebSocket     │            │
-                 │  Server (:8082)│            │
-                 │  (live logs)   │            │
+                 │  WebSocket      │            │
+                 │  Server (:8082) │            │
+                 │  (live logs)    │            │
                  └────────┬────────┘            │
                           │                     │
                  ┌────────▼────────┐            │
-                 │ Request Handler│◀────────────┤
-                 │  (:3012)       │  serves     │
-                 │  GET *         │  dist/<id>/*│
+                 │ Request Handler │ ◀──────────┤
+                 │  (:3012)        │ serves     │
+                 │  GET *          │ dist/<id>/*│
                  └────────┬────────┘            │
                           │                     │
                     ┌─────▼─────┐               │
@@ -91,7 +91,7 @@ Voltex enables developers to deploy frontend projects effortlessly by leveraging
                                                 │
                  ┌──────────────┐               │
                  │  PostgreSQL  │               │
-                 │  (users DB)  │               │
+                 │  (users DB)  │───────────────│
                  └──────────────┘
 ```
 

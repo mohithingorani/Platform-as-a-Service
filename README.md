@@ -13,15 +13,15 @@ A highly scalable **Platform-as-a-Service (PaaS)** solution designed to simplify
 1. [Introduction](#introduction)
 2. [Architecture Overview](#architecture-overview)
 3. [Getting Started](#getting-started)
+   - [Prerequisites](#prerequisites)
+   - [Environment Variables](#environment-variables)
+   - [Docker Setup](#docker-setup)
 
-   * [Prerequisites](#prerequisites)
-   * [Environment Variables](#environment-variables)
-   * [Docker Setup](#docker-setup)
 4. [API Endpoints](#api-endpoints)
+   - [1. Deploy Project](#1-deploy-project)
+   - [2. Check Deployment Status](#2-check-deployment-status)
+   - [3. Access Deployed Website](#3-access-deployed-website)
 
-   * [1. Deploy Project](#1-deploy-project)
-   * [2. Check Deployment Status](#2-check-deployment-status)
-   * [3. Access Deployed Website](#3-access-deployed-website)
 5. [Subdomain Configuration](#subdomain-configuration)
 6. [Project Structure](#project-structure)
 7. [Author](#author)
@@ -54,11 +54,11 @@ Follow these instructions to get your PaaS platform up and running locally.
 
 ### 🧹 Prerequisites
 
-* **Docker** & **Docker Compose**
-* A registered **domain name** (e.g., `mohithingorani.tech`)
-* A **wildcard DNS record** (`*.deploy.${DOMAIN_NAME}`) pointed to your server's IP address
-* An **S3-compatible object storage** (e.g., AWS S3, DigitalOcean Spaces, MinIO)
-* A **Linux-based VM** or server with ports **80** and **443** accessible
+- **Docker** & **Docker Compose**
+- A registered **domain name** (e.g., `mohithingorani.tech`)
+- A **wildcard DNS record** (`*.deploy.${DOMAIN_NAME}`) pointed to your server's IP address
+- An **S3-compatible object storage** (e.g., AWS S3, DigitalOcean Spaces, MinIO)
+- A **Linux-based VM** or server with ports **80** and **443** accessible
 
 ### ⚙️ Environment Variables
 
@@ -88,10 +88,10 @@ docker compose up --build -d
 
 This command will launch:
 
-* 🚀 **upload-service** on port `3011`
-* 🌐 **request-handler-service** on port `3012`
-* 🔧 **deployment-service** in the background
-* 🗄️ **Redis** on port `6379`
+- 🚀 **upload-service** on port `3011`
+- 🌐 **request-handler-service** on port `3012`
+- 🔧 **deployment-service** in the background
+- 🗄️ **Redis** on port `6379`
 
 ---
 
@@ -158,14 +158,14 @@ Leverage these examples to interact with the deployment platform programmaticall
 
 ### Base URLs
 
-* **Upload Service:** `http://upload.mohit-hingorani.tech`
-* **Deployment Subdomain:** `http://<id>.deploy.mohithingorani.tech`
+- **Upload Service:** `http://upload.mohit.systems`
+- **Deployment Subdomain:** `http://<id>.deploy.mohithingorani.tech`
 
 ### Example: Deploy via cURL
 
 ```bash
 curl -X POST \
-  http://upload.mohit-hingorani.tech/deploy \
+  http://upload.mohit.systems/deploy \
   -H "Content-Type: application/json" \
   -d '{"repoUrl":"https://github.com/username/repo"}'
 ```
@@ -181,18 +181,18 @@ curl -X POST \
 ### Example: Check Status via JavaScript (Node.js)
 
 ```js
-import fetch from 'node-fetch';
+import fetch from "node-fetch";
 
 async function checkStatus(id) {
-  const res = await fetch(`http://upload.mohit-hingorani.tech/status?id=${id}`);
+  const res = await fetch(`http://upload.mohit.systems/status?id=${id}`);
   const json = await res.json();
   console.log(json);
 }
 
-checkStatus('abc123');
+checkStatus("abc123");
 ```
 
-Feel free to replace `mohit-hingorani.tech` with your own domain if you fork the platform.
+Feel free to replace `mohit.systems` with your own domain if you fork the platform.
 
 ---
 

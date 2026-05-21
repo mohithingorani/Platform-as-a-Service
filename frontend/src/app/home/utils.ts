@@ -1,5 +1,5 @@
 export function deploymentHostUrl(id: string) {
-  return `http://${id}.deploy.mohit-hingorani.tech`;
+  return `http://${id}.deploy.mohit.systems`;
 }
 
 export function repoSlug(repoUrl: string) {

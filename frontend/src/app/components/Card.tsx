@@ -11,7 +11,7 @@ const githubUrlSchema = z
   .url()
   .regex(
     /^https:\/\/github\.com\/[^\/]+\/[^\/]+$/,
-    "Must be a valid GitHub repository URL"
+    "Must be a valid GitHub repository URL",
   );
 
 export default function Card() {
@@ -35,7 +35,7 @@ export default function Card() {
     try {
       const deployRepo = await axios.post(
         `${process.env.NEXT_PUBLIC_UPLOAD_URL}/deploy`,
-        { repoUrl: url }
+        { repoUrl: url },
       );
 
       const deploymentId = deployRepo.data.id;
@@ -45,14 +45,12 @@ export default function Card() {
       const intervalId = setInterval(async () => {
         try {
           const statusRes = await axios.get(
-            `${process.env.NEXT_PUBLIC_UPLOAD_URL}/status?id=${deploymentId}`
+            `${process.env.NEXT_PUBLIC_UPLOAD_URL}/status?id=${deploymentId}`,
           );
           if (statusRes.data.status === "deployed") {
             clearInterval(intervalId);
             setLoading(false);
-            setDeployedUrl(
-              `http://${deploymentId}.deploy.mohit-hingorani.tech`
-            );
+            setDeployedUrl(`http://${deploymentId}.deploy.mohit.systems`);
           }
         } catch (err) {
           console.error("Polling error", err);
@@ -103,11 +101,8 @@ export default function Card() {
         </button>
       </div>
       <div>{deployedUrl && <DeployedCard URL={deployedUrl} />}</div>
-      
-      <div>
-        {id &&<LogsCard id={id}/>}
-        </div>
 
+      <div>{id && <LogsCard id={id} />}</div>
     </div>
   );
 }

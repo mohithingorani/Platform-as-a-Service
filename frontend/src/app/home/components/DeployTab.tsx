@@ -32,13 +32,17 @@ export default function DeployTab({
 
           <div>
             <h2 className="text-xl font-semibold text-white">Deploy to Edge</h2>
-            <p className="text-sm text-zinc-400">Connect your GitHub repository</p>
+            <p className="text-sm text-zinc-400">
+              Connect your GitHub repository
+            </p>
           </div>
         </div>
 
         <div className="space-y-6">
           <div>
-            <label className="block text-zinc-400 text-sm font-medium mb-3">Repository</label>
+            <label className="block text-zinc-400 text-sm font-medium mb-3">
+              Repository
+            </label>
 
             <div className="relative">
               <div className="absolute left-4 top-1/2 -translate-y-1/2">
@@ -63,7 +67,9 @@ export default function DeployTab({
 
           {deployedUrl && (
             <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-              <div className="text-emerald-400 font-medium mb-2">Deployment successful</div>
+              <div className="text-emerald-400 font-medium mb-2">
+                Deployment successful
+              </div>
               <a
                 href={deployedUrl}
                 target="_blank"
@@ -98,7 +104,8 @@ export default function DeployTab({
       <div className="rounded-2xl border border-zinc-800/70 bg-zinc-900/30 backdrop-blur-xl p-7">
         <div className="text-white font-semibold">What happens next</div>
         <div className="text-sm text-zinc-400 mt-2">
-          Voltex clones your repository, builds in an isolated container, then publishes assets to a unique edge subdomain.
+          Voltex clones your repository, builds in an isolated container, then
+          publishes assets to a unique edge subdomain.
         </div>
 
         <div className="mt-6 space-y-3">
@@ -119,7 +126,7 @@ export default function DeployTab({
 
         <div className="mt-6 rounded-xl border border-zinc-800/60 bg-zinc-950/30 p-4 font-mono text-xs text-zinc-300">
           <div className="text-zinc-500">Output</div>
-          <div className="mt-2">http://&lt;id&gt;.deploy.mohit-hingorani.tech</div>
+          <div className="mt-2">http://&lt;id&gt;.deploy.mohit.systems</div>
         </div>
       </div>
     </div>

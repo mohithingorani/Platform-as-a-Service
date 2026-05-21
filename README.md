@@ -40,12 +40,12 @@ Voltex enables developers to deploy frontend projects effortlessly by leveraging
                     └──────┬──────┘
                            │ git clone
                            ▼
-┌──────────┐     ┌─────────────────┐     ┌──────────────┐
-│ Frontend │────▶│  Upload Service │────▶│     S3       │
-│ (Next.js)│     │  POST /deploy   │     │  (bucket:    │
-│ :3014    │     │  GET /status    │     │   "paas")    │
-└──────────┘     │  GET/deployments│     └──────┬───────┘
-      │          └────────┬────────┘            │
+┌──────────┐     ┌──────────────────┐     ┌──────────────┐
+│          │────▶│  Upload Service  │────▶│              │
+│ Frontend │     │  POST /deploy   │      │      S3      │
+│          │     │  GET /status     │     │              │
+└──────────┘     │  GET/deployments │     └─────┬────────┘
+      │          └────────┬─────────┘           │
       │                   │                     │
       │            ┌──────▼────────┐            │
       │            │    Redis      │            │
@@ -71,9 +71,9 @@ Voltex enables developers to deploy frontend projects effortlessly by leveraging
                  └────────┬────────┘            │
                           │                     │
                  ┌────────▼────────┐            │
-                 │ Request Handler │ ◀──────────┤
-                 │  (:3012)        │ serves     │
-                 │  GET *          │ dist/<id>/*│
+                 │                 │ ◀──────────┤
+                 │ Request Handler │ serves     │
+                 │                 │ dist/<id>  │
                  └────────┬────────┘            │
                           │                     │
                     ┌─────▼─────┐               │
@@ -84,7 +84,7 @@ Voltex enables developers to deploy frontend projects effortlessly by leveraging
                                                 │
                  ┌──────────────┐               │
                  │ User Backend │───────────────┤
-                 │  (:3010)     │  (separate)   │
+                 │              │  (separate)   │
                  │  Prisma + PG │               │
                  │  Auth API    │               │
                  └──────────────┘               │

@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Poppins } from "next/font/google";
 import RecoilContextProvider from "@/lib/recoilContextProvider";
+import SiteFooter from "./components/SiteFooter";
 
 const inter = Inter({ subsets: ["latin"] });
 const poppins_init = Poppins({
@@ -23,9 +24,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={poppins_init.className}>
+      <body className={`${poppins_init.className} min-h-screen flex flex-col`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <RecoilContextProvider>{children}</RecoilContextProvider>
+          <RecoilContextProvider>
+            <div className="flex-1 flex flex-col">{children}</div>
+            <SiteFooter />
+          </RecoilContextProvider>
         </ThemeProvider>
       </body>
     </html>

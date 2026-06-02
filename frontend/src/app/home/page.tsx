@@ -7,7 +7,6 @@ import { z } from "zod";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus, ChevronRight } from "lucide-react";
 import HomeTopNav from "./components/HomeTopNav";
-import HomeFooter from "./components/HomeFooter";
 import HomeBootLoader from "./components/HomeBootLoader";
 import DashboardTab from "./components/DashboardTab";
 import DeployTab from "./components/DeployTab";
@@ -338,10 +337,7 @@ function DashboardContent() {
           {renderContent()}
         </div>
       </main>
-
-      <HomeFooter />
     </div>
-    
   );
 }
 

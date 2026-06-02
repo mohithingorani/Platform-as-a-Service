@@ -1,8 +1,10 @@
 import { Zap, Globe } from "lucide-react";
-import { GitHubIcon, XIcon } from "./BrandIcons";
+import { GitHubIcon, XIcon } from "./landing/BrandIcons";
+
+const REPO_URL = "https://github.com/mohithingorani/Platform-as-a-Service";
 
 const socials = [
-  { icon: GitHubIcon, href: "https://github.com/mohithingorani/Platform-as-a-Service", label: "GitHub" },
+  { icon: GitHubIcon, href: REPO_URL, label: "GitHub" },
   { icon: XIcon, href: "https://x.com/", label: "X" },
   { icon: Globe, href: "https://mohit.systems", label: "mohit.systems" },
 ];
@@ -11,9 +13,9 @@ const columns: { title: string; links: { label: string; href: string }[] }[] = [
   {
     title: "Product",
     links: [
-      { label: "Features", href: "#features" },
-      { label: "Architecture", href: "#architecture" },
-      { label: "Pricing", href: "#pricing" },
+      { label: "Features", href: "/#features" },
+      { label: "Architecture", href: "/#architecture" },
+      { label: "Pricing", href: "/#pricing" },
       { label: "Status", href: "/status" },
     ],
   },
@@ -29,26 +31,30 @@ const columns: { title: string; links: { label: string; href: string }[] }[] = [
   {
     title: "Project",
     links: [
-      { label: "Source code", href: "https://github.com/mohithingorani/Platform-as-a-Service" },
-      { label: "FAQ", href: "#faq" },
+      { label: "Source code", href: REPO_URL },
+      { label: "FAQ", href: "/#faq" },
       { label: "mohit.systems", href: "https://mohit.systems" },
     ],
   },
 ];
 
-export default function Footer() {
+/**
+ * The single, canonical footer rendered for every page from the root layout.
+ * Keep all site-wide footer changes here so pages never drift apart.
+ */
+export default function SiteFooter() {
   return (
-    <footer className="px-6 pt-16 pb-10 border-t border-border-subtle">
+    <footer className="px-6 pt-16 pb-10 border-t border-border-subtle bg-bg-primary">
       <div className="max-w-6xl mx-auto">
         <div className="grid gap-10 md:grid-cols-12">
           {/* Brand */}
           <div className="md:col-span-5">
-            <div className="flex items-center gap-2.5 mb-4">
+            <a href="/" className="flex items-center gap-2.5 mb-4 w-fit">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-accent-hover flex items-center justify-center shadow-lg shadow-accent/20">
                 <Zap className="w-4 h-4 text-white" fill="currentColor" />
               </div>
               <span className="text-text-primary font-semibold text-lg tracking-tight">Voltex</span>
-            </div>
+            </a>
             <p className="text-text-secondary text-sm max-w-xs leading-relaxed mb-5">
               A from-scratch PaaS: GitHub URL in, live site out — with sandboxed Docker builds and
               real-time logs.

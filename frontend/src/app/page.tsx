@@ -8,7 +8,6 @@ import Stats from "./components/landing/Stats";
 import Pricing from "./components/landing/Pricing";
 import FAQ from "./components/landing/FAQ";
 import CTA from "./components/landing/CTA";
-import Footer from "./components/landing/Footer";
 
 export default function LandingPage() {
   return (
@@ -25,7 +24,6 @@ export default function LandingPage() {
         <FAQ />
         <CTA />
       </main>
-      <Footer />
     </div>
   );
 }

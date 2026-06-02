@@ -255,3 +255,91 @@ body::before {
     radial-gradient(ellipse 60% 40% at 80% 50%, rgba(59, 130, 246, 0.08), transparent),
     var(--bg-primary);
 }
+
+/* Grid sizing helper (pairs with Tailwind's bg-grid image) */
+.bg-grid-size {
+  background-size: 60px 60px;
+}
+
+/* Mouse-following spotlight for cards */
+.spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(
+    240px circle at var(--mx, 50%) var(--my, 0%),
+    rgba(59, 130, 246, 0.12),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.spotlight:hover::before {
+  opacity: 1;
+}
+
+/* Animated gradient text shimmer */
+.animate-text-shimmer {
+  background-size: 200% auto;
+  animation: textShimmer 4s linear infinite;
+}
+
+@keyframes textShimmer {
+  to {
+    background-position: 200% center;
+  }
+}
+
+/* Terminal cursor blink (CSS-only, no re-render) */
+.animate-cursor-blink {
+  animation: cursorBlink 1s steps(2, start) infinite;
+}
+
+@keyframes cursorBlink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Slow aurora behind the hero terminal */
+.animate-aurora {
+  animation: auroraSpin 22s linear infinite;
+}
+
+@keyframes auroraSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Seamless logo/tech marquee (doubled content, translate -50%) */
+.animate-marquee {
+  animation: marquee 34s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Respect reduced-motion globally for the landing flourishes */
+@media (prefers-reduced-motion: reduce) {
+  .animate-text-shimmer,
+  .animate-cursor-blink,
+  .animate-aurora,
+  .animate-marquee,
+  .animate-pulse-soft,
+  .animate-float {
+    animation: none !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import BrandMark from "../components/BrandMark";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -80,9 +81,7 @@ export default function Login() {
 
           <div className="bg-bg-secondary/50 backdrop-blur-xl border border-border-subtle rounded-2xl p-8 shadow-2xl">
             <div className="flex items-center justify-center gap-3 mb-8">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent-hover flex items-center justify-center shadow-lg shadow-accent/20">
-                <span className="text-white font-bold text-lg">V</span>
-              </div>
+              <BrandMark size="lg" />
               <span className="text-text-primary font-semibold text-xl tracking-tight">
                 Voltex
               </span>

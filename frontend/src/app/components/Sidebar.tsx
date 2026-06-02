@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import BrandMark from "./BrandMark";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -28,9 +29,7 @@ export default function Sidebar({ activeTab = "dashboard" }: SidebarProps) {
       <div className="flex flex-col h-full">
         <div className="p-4 border-b border-border">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">V</span>
-            </div>
+            <BrandMark size="sm" />
             {!collapsed && (
               <span className="text-text-primary font-semibold text-lg">
                 Voltex

@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
-import { Menu, X, Zap } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { navLinks } from "./data";
 import { GitHubIcon } from "./BrandIcons";
+import BrandMark from "../BrandMark";
 
 const REPO_URL = "https://github.com/mohithingorani/Platform-as-a-Service";
 
@@ -78,9 +79,7 @@ export default function Nav() {
         >
           {/* Logo */}
           <a href="#top" className="flex items-center gap-2.5 shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-accent-hover flex items-center justify-center shadow-lg shadow-accent/20">
-              <Zap className="w-4 h-4 text-white" fill="currentColor" />
-            </div>
+            <BrandMark size="sm" />
             <span className="text-text-primary font-semibold text-lg tracking-tight">Voltex</span>
           </a>
 

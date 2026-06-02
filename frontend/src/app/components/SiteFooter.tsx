@@ -1,5 +1,6 @@
-import { Zap, Globe } from "lucide-react";
+import { Globe } from "lucide-react";
 import { GitHubIcon, XIcon } from "./landing/BrandIcons";
+import BrandMark from "./BrandMark";
 
 const REPO_URL = "https://github.com/mohithingorani/Platform-as-a-Service";
 
@@ -50,9 +51,7 @@ export default function SiteFooter() {
           {/* Brand */}
           <div className="md:col-span-5">
             <a href="/" className="flex items-center gap-2.5 mb-4 w-fit">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-accent-hover flex items-center justify-center shadow-lg shadow-accent/20">
-                <Zap className="w-4 h-4 text-white" fill="currentColor" />
-              </div>
+              <BrandMark size="sm" />
               <span className="text-text-primary font-semibold text-lg tracking-tight">Voltex</span>
             </a>
             <p className="text-text-secondary text-sm max-w-xs leading-relaxed mb-5">

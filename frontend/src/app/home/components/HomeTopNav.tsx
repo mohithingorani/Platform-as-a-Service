@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import BrandMark from "../../components/BrandMark";
 import { motion } from "framer-motion";
 import { Activity, GitBranch, LogOut, Plus, Settings } from "lucide-react";
 import Image from "next/image";
@@ -59,9 +60,7 @@ export default function HomeTopNav({
           onClick={() => onTab("dashboard")}
           className="flex items-center gap-3"
         >
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-            <span className="text-white font-bold text-sm">V</span>
-          </div>
+          <BrandMark size="md" />
           <div className="text-white font-semibold tracking-tight hidden sm:block">
             Voltex
           </div>
